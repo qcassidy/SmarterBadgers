@@ -36,6 +36,7 @@ public class PlannerActivity extends AppCompatActivity {
         calendarFragment = new CalendarFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.CalendarFragmentContainer, calendarFragment).commit();
 
+
         RecyclerView todoListRecyclerView = findViewById(R.id.TodoListRecyclerView);
 
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -46,7 +47,7 @@ public class PlannerActivity extends AppCompatActivity {
 
     }
 
-    public void addAssignmentButtonOnClick(View view) {
+    public void addAssignmentButtonOnClickOld(View view) {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minute) {

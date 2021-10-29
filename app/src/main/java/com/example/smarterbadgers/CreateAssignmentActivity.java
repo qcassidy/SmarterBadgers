@@ -46,10 +46,8 @@ public class CreateAssignmentActivity extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(sqLiteDatabase);
         dbHelper.saveAssignment(newAssignment);
 
-        ArrayList<Assignment> addedAssignments = dbHelper.getAssignmentsFromDay(year + "/" + month + "/" + day);
-        PlannerActivity.logAssignments(addedAssignments);
-
-        Intent newIntent = new Intent(this, PlannerActivity.class);
-        startActivity(newIntent);
+    //    getSupportFragmentManager().beginTransaction().replace(R.id.container, new CalendarFragment()).commit();
+        this.finish();
+        //getSupportFragmentManager().popBackStack();
     }
 }
