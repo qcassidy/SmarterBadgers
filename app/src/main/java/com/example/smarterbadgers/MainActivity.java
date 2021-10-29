@@ -14,5 +14,8 @@ public class MainActivity extends AppCompatActivity {
         //Intent for testing TimerActivity
 //        Intent intent = new Intent(this, TimerActivity.class);
 //        startActivity(intent);
+
+        Intent intent = new Intent(this, PlannerActivity.class);
+        startActivity(intent);
     }
 }

@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmarterBadgers">
         <activity
+            android:name=".CreateAssignmentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PlannerActivity"
+            android:exported="false" />
+        <activity
             android:name=".TimerActivity"
             android:exported="true" />
         <activity
