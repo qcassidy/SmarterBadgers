@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         // Until other fragments are added to the bottomnavFunction onNavigationItemSelected(),
         // this will crash the app if you choose anything other than Planner
         bottomNavBar.setOnItemSelectedListener(bottomnavFunction);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new TimerFragment()).commit();
     }
     private NavigationBarView.OnItemSelectedListener bottomnavFunction = new NavigationBarView.OnItemSelectedListener() {
         @Override
@@ -35,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.planner:
                     fragment = new PlannerFragment();
+                    break;
+                case R.id.timer:
+                    fragment = new TimerFragment();
+                    break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
             return false;
