@@ -46,8 +46,6 @@ public class CreateAssignmentActivity extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(sqLiteDatabase);
         dbHelper.saveAssignment(newAssignment);
 
-    //    getSupportFragmentManager().beginTransaction().replace(R.id.container, new CalendarFragment()).commit();
         this.finish();
-        //getSupportFragmentManager().popBackStack();
     }
 }

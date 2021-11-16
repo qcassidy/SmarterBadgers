@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,9 @@ import android.widget.Button;
 import android.widget.TimePicker;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,6 +29,8 @@ import java.util.ArrayList;
  */
 public class PlannerFragment extends Fragment {
 
+    TodoListAdapter todoListAdapter;
+    DBHelper dbHelper;
     CalendarFragment calendarFragment;
     View view;
 
@@ -61,6 +68,17 @@ public class PlannerFragment extends Fragment {
 
         RecyclerView todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
 
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        todoListRecyclerView.setLayoutManager(linearLayoutManager);
+
+
+        SQLiteDatabase sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+        DBHelper dbHelper = new DBHelper(sqLiteDatabase);
+        todoListAdapter = new TodoListAdapter("10/26/2021", dbHelper);
+        todoListRecyclerView.setAdapter(todoListAdapter);
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
         return view;
     }
 
@@ -87,5 +105,13 @@ public class PlannerFragment extends Fragment {
         intent.putExtra("minute", "" + minute);
 
         startActivity(intent);
+
+        todoListAdapter.updateDay(new int[] {selectedDate[1], selectedDate[2], selectedDate[0]});
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("destroy", "destroying fragment");
+       super.onDestroy();
     }
 }
