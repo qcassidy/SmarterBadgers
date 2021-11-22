@@ -17,7 +17,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MapActivity extends AppCompatActivity {
 
-    private final LatLng mDestinationLatLng = new LatLng(43.0758, -89.4044);
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12;
@@ -32,9 +31,6 @@ public class MapActivity extends AppCompatActivity {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_map);
         mapFragment.getMapAsync(googleMap -> {
             mMap = googleMap;
-            googleMap.addMarker(new MarkerOptions()
-                    .position(mDestinationLatLng)
-                    .title("You are here"));
             displayMyLocation();
         });
     }
