@@ -1,5 +1,6 @@
 package com.example.smarterbadgers;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -80,10 +81,16 @@ public class TimerFragment extends Fragment {
         endBreakButton.setOnClickListener(this::endBreakOnClick);
 
         libraryButton = view.findViewById(R.id.libraryButton);
+        libraryButton.setOnClickListener(this::goToMap);
         enterMinTextView = view.findViewById(R.id.enterMinutes);
         editTextNumber = view.findViewById(R.id.editTextNumber);
 
         return view;
+    }
+
+    public void goToMap(View view) {
+        Intent intent = new Intent(getActivity(), MapActivity.class);
+        startActivity(intent);
     }
 
     public void startOnClick(View view) {
@@ -91,9 +98,9 @@ public class TimerFragment extends Fragment {
         libraryButton.setVisibility(View.INVISIBLE);
         stopButton.setVisibility(View.VISIBLE);
         breakButton.setVisibility(View.VISIBLE);
-        timeLeftMilliseconds = (long)(Integer.parseInt(editTextNumber.getText().toString())) * 60000;
-        int min = (int) timeLeftMilliseconds/1000 /60;
-        int sec = (int) timeLeftMilliseconds/1000 %60;
+        timeLeftMilliseconds = (long) (Integer.parseInt(editTextNumber.getText().toString())) * 60000;
+        int min = (int) timeLeftMilliseconds / 1000 / 60;
+        int sec = (int) timeLeftMilliseconds / 1000 % 60;
         String timeLeftString = String.format("%02d:%02d", min, sec);
         timerTextView.setText(timeLeftString);
         enterMinTextView.setVisibility(View.INVISIBLE);
@@ -107,8 +114,8 @@ public class TimerFragment extends Fragment {
             @Override
             public void onTick(long l) {
                 timeLeftMilliseconds = l;
-                int min = (int) timeLeftMilliseconds/1000 /60;
-                int sec = (int) timeLeftMilliseconds/1000 %60;
+                int min = (int) timeLeftMilliseconds / 1000 / 60;
+                int sec = (int) timeLeftMilliseconds / 1000 % 60;
                 String timeLeftString = String.format("%02d:%02d", min, sec);
                 timerTextView.setText(timeLeftString);
             }
@@ -146,8 +153,8 @@ public class TimerFragment extends Fragment {
             @Override
             public void onTick(long l) {
                 timeLeftBreakMilliseconds = l;
-                int min = (int) timeLeftBreakMilliseconds/1000/60;
-                int sec = (int) timeLeftBreakMilliseconds/1000%60;
+                int min = (int) timeLeftBreakMilliseconds / 1000 / 60;
+                int sec = (int) timeLeftBreakMilliseconds / 1000 % 60;
                 String timeLeftBreakString = String.format("%02d:%02d", min, sec);
                 timerTextView.setText(timeLeftBreakString);
             }
@@ -171,4 +178,5 @@ public class TimerFragment extends Fragment {
         endBreakButton.setVisibility(View.INVISIBLE);
         startTimer();
     }
+
 }
