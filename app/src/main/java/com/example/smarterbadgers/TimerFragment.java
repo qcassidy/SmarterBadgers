@@ -1,5 +1,7 @@
 package com.example.smarterbadgers;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -33,6 +35,7 @@ public class TimerFragment extends Fragment {
     private CountDownTimer countDownTimer;
     private long timeLeftMilliseconds = 600000;
     private long timeLeftBreakMilliseconds = 300000;
+    private int breaksRemaining = 0;
 
     public TimerFragment() {
         // Required empty public constructor
@@ -55,6 +58,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        breaksRemaining = 2;
 
     }
 
@@ -74,6 +78,7 @@ public class TimerFragment extends Fragment {
         stopButton.setOnClickListener(this::stopOnClick);
 
         breakButton = view.findViewById(R.id.breakButton);
+        breakButton.setText(String.format("Breaks Remaining: %d",breaksRemaining));
         breakButton.setOnClickListener(this::breakOnClick);
 
         endBreakButton = view.findViewById(R.id.endBreakButton);
@@ -127,17 +132,42 @@ public class TimerFragment extends Fragment {
     }
 
     public void stopOnClick(View view) {
-        countDownTimer.cancel();
-        timerTextView.setVisibility(View.INVISIBLE);
-        startButton.setVisibility(View.VISIBLE);
-        libraryButton.setVisibility(View.VISIBLE);
-        stopButton.setVisibility(View.INVISIBLE);
-        breakButton.setVisibility(View.INVISIBLE);
-        enterMinTextView.setVisibility(View.VISIBLE);
-        editTextNumber.setVisibility(View.VISIBLE);
+        int min = (int)timeLeftMilliseconds/60000;
+        int sec = (int)timeLeftMilliseconds/1000%60;
+        String message = String.format("You only have %02d:%02d left!",min,sec);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Are you sure you want to stop studying?")
+                .setMessage(message)
+                .setNeutralButton("Continue Studying", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .setPositiveButton("End Timer", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        countDownTimer.cancel();
+                        timerTextView.setVisibility(View.INVISIBLE);
+                        startButton.setVisibility(View.VISIBLE);
+                        libraryButton.setVisibility(View.VISIBLE);
+                        stopButton.setVisibility(View.INVISIBLE);
+                        breakButton.setVisibility(View.INVISIBLE);
+                        enterMinTextView.setVisibility(View.VISIBLE);
+                        editTextNumber.setVisibility(View.VISIBLE);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 
     public void breakOnClick(View view) {
+        if(breaksRemaining == 0){
+            return;
+        }
+        breaksRemaining --;
+        breakButton.setText(String.format("Breaks Remaining: %d",breaksRemaining));
         countDownTimer.cancel();
         breakButton.setVisibility(View.INVISIBLE);
         stopButton.setVisibility(View.INVISIBLE);
