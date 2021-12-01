@@ -2,14 +2,17 @@ package com.example.smarterbadgers;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 public class CreateAssignmentActivity extends AppCompatActivity {
@@ -32,19 +35,24 @@ public class CreateAssignmentActivity extends AppCompatActivity {
         String name = nameText.getText().toString();
         String desc = descText.getText().toString();
 
-        Intent intent = getIntent();
-        String year = intent.getStringExtra("year");
-        String month = intent.getStringExtra("month");
-        String day = intent.getStringExtra("day");
-        String hour = intent.getStringExtra("hour");
-        String minute = intent.getStringExtra("minute");
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("name", name);
+        returnIntent.putExtra("desc", desc);
+        setResult(Activity.RESULT_OK, returnIntent);
 
-        Assignment newAssignment = new Assignment(name, year + "/" + month  + "/" + day, hour + ":" + minute, desc);
+       // Intent intent = getIntent();
+       // String year = intent.getStringExtra("year");
+       // String month = intent.getStringExtra("month");
+       // String day = intent.getStringExtra("day");
+       // String hour = intent.getStringExtra("hour");
+       // String minute = intent.getStringExtra("minute");
 
-        Context context = getApplicationContext();
-        SQLiteDatabase sqLiteDatabase = context.openOrCreateDatabase("assignments", Context.MODE_PRIVATE, null);
-        DBHelper dbHelper = new DBHelper(sqLiteDatabase);
-        dbHelper.saveAssignment(newAssignment);
+       // Assignment newAssignment = new Assignment(name, year + "/" + month  + "/" + day, hour + ":" + minute, desc);
+
+       // Context context = getApplicationContext();
+       // SQLiteDatabase sqLiteDatabase = context.openOrCreateDatabase("assignments", Context.MODE_PRIVATE, null);
+       // DBHelper dbHelper = new DBHelper(sqLiteDatabase);
+       // dbHelper.saveAssignment(newAssignment);
 
         this.finish();
     }

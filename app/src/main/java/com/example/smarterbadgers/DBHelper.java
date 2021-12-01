@@ -14,6 +14,7 @@ import java.util.Locale;
 public class DBHelper {
 
     SQLiteDatabase sqLiteDatabase;
+    ArrayList<Day> lastRetrieval;
 
     public DBHelper(SQLiteDatabase sqLiteDatabase) {
         this.sqLiteDatabase = sqLiteDatabase;
