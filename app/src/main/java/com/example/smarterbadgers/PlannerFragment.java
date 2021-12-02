@@ -73,43 +73,9 @@ public class PlannerFragment extends Fragment {
         calendarFragment = new CalendarFragment();
         getChildFragmentManager().beginTransaction().replace(R.id.CalendarFragmentContainer, calendarFragment).commit();
 
-        Button addAssignmentButton = view.findViewById(R.id.addAssignmentButton);
-        addAssignmentButton.setOnClickListener(this::addAssignmentButtonOnClick);
-
-        RecyclerView todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        todoListRecyclerView.setLayoutManager(linearLayoutManager);
-
-
-        SQLiteDatabase sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
-        DBHelper dbHelper = new DBHelper(sqLiteDatabase);
-        todoListAdapter = new TodoListAdapter("10/26/2021", dbHelper);
-        todoListRecyclerView.setAdapter(todoListAdapter);
-
-        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
-
-
-
-        return view;
-    }
-
-
-    public void addAssignmentButtonOnClick(View view) {
-        TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                goToCreateAssignmentActivity(hour, minute);
-            }
-        }, 0, 0, false);
-
-        timePickerDialog.show();
-    }
-
-    public void goToCreateAssignmentActivity(int hour, int minute) {
         int[] selectedDate = calendarFragment.getSelectedDate();
 
+        // hand result of create assignment activity
         createAssignmentActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -119,25 +85,59 @@ public class PlannerFragment extends Fragment {
                             Intent data = result.getData();
                             String name = data.getStringExtra("name");
                             String desc = data.getStringExtra("desc");
+                            String hour = data.getStringExtra("hour");
+                            String minute = data.getStringExtra("minute");
+                            String day = data.getStringExtra("day");
+                            String month = data.getStringExtra("month");
+                            String year = data.getStringExtra("year");
 
-                            Assignment newAssignment = new Assignment(name, selectedDate[0] + "/" + selectedDate[1] + "/" + selectedDate[2], hour + ":" + minute, desc);
+                            Assignment newAssignment = new Assignment(name, year + "/" + month + "/" + day, hour + ":" + minute, desc);
 
                             //dbHelper.saveAssignment(newAssignment);
                             SaveAssignmentToDatabase databaseUpload = new SaveAssignmentToDatabase();
                             databaseUpload.execute(newAssignment);
                         }
                     }
-                }
-        );
+                });
 
-        Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
-        //intent.putExtra("year", "" + selectedDate[0]);
-        //intent.putExtra("month", "" + selectedDate[1]);
-        //intent.putExtra("day", "" + selectedDate[2]);
-        //intent.putExtra("hour", "" + hour);
-        //intent.putExtra("minute", "" + minute);
-        createAssignmentActivityResultLauncher.launch(intent);
-        //todoListAdapter.updateDay(new int[] {selectedDate[1], selectedDate[2], selectedDate[0]});
+        // set add assignment button to launch result launcher from above
+        Button addAssignmentButton = view.findViewById(R.id.addAssignmentButton);
+        addAssignmentButton.setOnClickListener( (View view) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                    //goToCreateAssignmentActivity(hour, minute);
+                    int[] selectedDate = calendarFragment.getSelectedDate();
+
+                    Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
+
+                    intent.putExtra("hour", "" + hour);
+                    intent.putExtra("minute", "" + minute);
+                    intent.putExtra("year", "" + selectedDate[0]);
+                    intent.putExtra("month", "" + selectedDate[1]);
+                    intent.putExtra("day", "" + selectedDate[2]);
+                    createAssignmentActivityResultLauncher.launch(intent);
+                }
+            }, 0, 0, false);
+
+            timePickerDialog.show();
+        });
+
+        // create recycler view for todolist
+        RecyclerView todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        todoListRecyclerView.setLayoutManager(linearLayoutManager);
+
+
+        SQLiteDatabase sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+        dbHelper = new DBHelper(sqLiteDatabase);
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        todoListAdapter = new TodoListAdapter( calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR), dbHelper);
+        todoListRecyclerView.setAdapter(todoListAdapter);
+        todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
+
+        return view;
     }
 
     public class SaveAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {

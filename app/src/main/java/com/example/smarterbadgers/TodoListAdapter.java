@@ -27,6 +27,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     DBHelper dbHelper;
     ArrayList<Day> days;
     int[] mdy;
+    int currYear;
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
@@ -67,6 +68,8 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         int d = Integer.valueOf(mdy[1]);
         int y = Integer.valueOf(mdy[2]);
 
+        currYear = y;
+
         this.mdy = new int[] {m,d,y};
 
         //days = new ArrayList<>();
@@ -104,12 +107,21 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-
+        if (days.size() - position < 50) {
+            days.addAll(this.dbHelper.getAssignmentsFromYear(++currYear));
+        }
 
         viewHolder.getTextView().setText(days.get(position).toString());
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
 
         viewHolder.linearLayout.removeAllViews();
+
+        if (assignments.size() == 0) {
+        //    TextView text = new TextView(viewHolder.linearLayout.getContext());
+        //    text.setText(days.get(position).toString());
+        //    viewHolder.getLinearLayout().addView(text);
+        }
+
         for (int i = 0; i < assignments.size(); i++) {
             Assignment currAssignment = assignments.get(i);
             TextView currView = new TextView(viewHolder.linearLayout.getContext());

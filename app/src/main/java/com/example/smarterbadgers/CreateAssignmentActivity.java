@@ -35,17 +35,24 @@ public class CreateAssignmentActivity extends AppCompatActivity {
         String name = nameText.getText().toString();
         String desc = descText.getText().toString();
 
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("name", name);
-        returnIntent.putExtra("desc", desc);
-        setResult(Activity.RESULT_OK, returnIntent);
 
-       // Intent intent = getIntent();
-       // String year = intent.getStringExtra("year");
-       // String month = intent.getStringExtra("month");
-       // String day = intent.getStringExtra("day");
-       // String hour = intent.getStringExtra("hour");
-       // String minute = intent.getStringExtra("minute");
+       Intent intent = getIntent();
+       String year = intent.getStringExtra("year");
+       String month = intent.getStringExtra("month");
+       String day = intent.getStringExtra("day");
+       String hour = intent.getStringExtra("hour");
+       String minute = intent.getStringExtra("minute");
+
+        Log.d("ass", month + "/" + day + "/" + year + " " + hour + ":" + minute);
+       Intent returnIntent = new Intent();
+       returnIntent.putExtra("name", name);
+       returnIntent.putExtra("desc", desc);
+       returnIntent.putExtra("year", year);
+       returnIntent.putExtra("month", month);
+       returnIntent.putExtra("day", day);
+       returnIntent.putExtra("hour", hour);
+       returnIntent.putExtra("minute", minute);
+       setResult(Activity.RESULT_OK, returnIntent);
 
        // Assignment newAssignment = new Assignment(name, year + "/" + month  + "/" + day, hour + ":" + minute, desc);
 
