@@ -113,16 +113,15 @@ public class PlannerFragment extends Fragment {
             TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                    //goToCreateAssignmentActivity(hour, minute);
                     int[] selectedDate = calendarFragment.getSelectedDate();
 
                     Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
-
                     intent.putExtra("hour", "" + hour);
                     intent.putExtra("minute", "" + minute);
                     intent.putExtra("year", "" + selectedDate[0]);
                     intent.putExtra("month", "" + selectedDate[1]);
                     intent.putExtra("day", "" + selectedDate[2]);
+
                     createAssignmentActivityResultLauncher.launch(intent);
                 }
             }, 0, 0, false);
@@ -198,8 +197,12 @@ public class PlannerFragment extends Fragment {
                     TodoListAdapter.ViewHolder myViewHolder = ((TodoListAdapter.ViewHolder) holder);
                     Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
 
+                    ItemDetails myDetails = myViewHolder.getItemDetails();
                     myViewHolder.changeActivated();
-                    return myViewHolder.getItemDetails();
+                    todoListAdapter.tryExpand(myViewHolder, myViewHolder.getAdapterPosition());
+                    //todoListAdapter.notifyItemChanged(myViewHolder.getAdapterPosition());
+
+                    return myDetails;
                 }
             }
             return null;

@@ -82,6 +82,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         public boolean changeActivated() {
             boolean newActivatedStatus;
             view.setActivated(newActivatedStatus = !view.isActivated());
+            Log.d("view","view.isActivated(): " + view.isActivated());
             return newActivatedStatus;
         }
     }
@@ -155,16 +156,22 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         //    viewHolder.getLinearLayout().addView(text);
         }
 
+        tryExpand(viewHolder, position);
+    }
+
+    public void tryExpand(ViewHolder viewHolder, int position) {
+        ArrayList<Assignment> assignments = days.get(position).getAssignments();
         if (viewHolder.getView().isActivated()) {
             for (int i = 0; i < assignments.size(); i++) {
                 Assignment currAssignment = assignments.get(i);
                 TextView currView = new TextView(viewHolder.linearLayout.getContext());
                 currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
                 viewHolder.getLinearLayout().addView(currView);
-
             }
         }
-
+        else {
+            viewHolder.linearLayout.removeAllViews();
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)
