@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Array;
@@ -28,6 +30,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     ArrayList<Day> days;
     int[] mdy;
     int currYear;
+    boolean expandAll = false;
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
@@ -35,11 +38,14 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
         private final LinearLayout linearLayout;
+        private final View view;
+        private int position;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
 
+            this.view = view;
             textView = (TextView) view.findViewById(R.id.textView);
             linearLayout = (LinearLayout) view.findViewById(R.id.AssignmentsLinearLayout);
         }
@@ -50,6 +56,33 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         public LinearLayout getLinearLayout() {
             return linearLayout;
+        }
+
+        public View getView() {
+            return view;
+        }
+
+        public ItemDetailsLookup.ItemDetails getItemDetails() {
+            ItemDetailsLookup.ItemDetails itemDetails = new ItemDetailsLookup.ItemDetails() {
+                @Override
+                public int getPosition() {
+                    Log.d("ViewHolder", "position: " + getAdapterPosition());
+                    return getAdapterPosition();
+                }
+
+                @Nullable
+                @Override
+                public Object getSelectionKey() {
+                    return null;
+                }
+            };
+            return itemDetails;
+        }
+
+        public boolean changeActivated() {
+            boolean newActivatedStatus;
+            view.setActivated(newActivatedStatus = !view.isActivated());
+            return newActivatedStatus;
         }
     }
 
@@ -122,12 +155,14 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         //    viewHolder.getLinearLayout().addView(text);
         }
 
-        for (int i = 0; i < assignments.size(); i++) {
-            Assignment currAssignment = assignments.get(i);
-            TextView currView = new TextView(viewHolder.linearLayout.getContext());
-            currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
-            viewHolder.getLinearLayout().addView(currView);
+        if (viewHolder.getView().isActivated()) {
+            for (int i = 0; i < assignments.size(); i++) {
+                Assignment currAssignment = assignments.get(i);
+                TextView currView = new TextView(viewHolder.linearLayout.getContext());
+                currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
+                viewHolder.getLinearLayout().addView(currView);
 
+            }
         }
 
     }

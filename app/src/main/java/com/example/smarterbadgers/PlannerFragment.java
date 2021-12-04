@@ -13,12 +13,19 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.StableIdKeyProvider;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -137,6 +144,14 @@ public class PlannerFragment extends Fragment {
         todoListRecyclerView.setAdapter(todoListAdapter);
         todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
 
+        SelectionTracker tracker = new SelectionTracker.Builder<>(
+                "todolist-selection",
+                todoListRecyclerView,
+                new StableIdKeyProvider(todoListRecyclerView),
+                new MyDetailsLookup(todoListRecyclerView),
+                StorageStrategy.createLongStorage())
+                .build();
+
         return view;
     }
 
@@ -164,5 +179,30 @@ public class PlannerFragment extends Fragment {
     public void onDestroy() {
         Log.d("destroy", "destroying fragment");
        super.onDestroy();
+    }
+
+    private class MyDetailsLookup extends ItemDetailsLookup {
+        RecyclerView recyclerView;
+
+        public MyDetailsLookup(RecyclerView recyclerView) {
+            this.recyclerView = recyclerView;
+        }
+
+        @Nullable
+        @Override
+        public ItemDetails getItemDetails(@NonNull MotionEvent e) {
+            View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
+            if (view != null) {
+                RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
+                if (holder instanceof TodoListAdapter.ViewHolder) {
+                    TodoListAdapter.ViewHolder myViewHolder = ((TodoListAdapter.ViewHolder) holder);
+                    Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
+
+                    myViewHolder.changeActivated();
+                    return myViewHolder.getItemDetails();
+                }
+            }
+            return null;
+        }
     }
 }

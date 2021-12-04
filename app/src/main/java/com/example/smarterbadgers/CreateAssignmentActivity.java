@@ -25,6 +25,8 @@ public class CreateAssignmentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_assignment);
 
+        getActivityResultRegistry();
+
         Log.d("assignment", "creating new assignment");
     }
 
