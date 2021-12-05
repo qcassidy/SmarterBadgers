@@ -75,6 +75,9 @@ public class PlannerActivity extends AppCompatActivity {
      * @param assignments assignments to be logged
      */
     protected static void logAssignments(ArrayList<Assignment> assignments) {
+        if (assignments.size() == 0) {
+            Log.d("assignment", "no assignments");
+        }
         for (int i = 0; i < assignments.size(); i++) {
             Log.d("assignment", "Name: " + assignments.get(i).getName() + " Due Date: " + assignments.get(i).getDueDate());
         }

@@ -2,16 +2,19 @@ package com.example.smarterbadgers;
 
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +32,8 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     int[] mdy;
     int currYear;
     boolean expandAll = false;
+    PlannerFragment plannerFragment;
+
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
@@ -91,13 +96,15 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
      *                USE FORMAT: "MM/DD/YYYY"
      * by RecyclerView.
      */
-    public TodoListAdapter(String firstDay, DBHelper dbHelper) {
+    public TodoListAdapter(String firstDay, DBHelper dbHelper, PlannerFragment plannerFragment) {
         dbHelper = dbHelper;
 
         String[] mdy = firstDay.split("/");
         int m = Integer.valueOf(mdy[0]);
         int d = Integer.valueOf(mdy[1]);
         int y = Integer.valueOf(mdy[2]);
+
+        this.plannerFragment = plannerFragment;
 
         currYear = y;
 
@@ -122,15 +129,38 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         PlannerActivity.logAssignments(currDay.getAssignments());
     }
 
+    public class AssignmentEditView extends View {
+
+        public AssignmentEditView(Context context) {
+            super(context);
+        }
+    }
     // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
-        View view = LayoutInflater.from(viewGroup.getContext())
+        View currView = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.todo_list_item, viewGroup, false);
 
-        ViewHolder viewHolder = new ViewHolder(view);
+        ViewHolder viewHolder = new ViewHolder(currView);
         ListView listView = viewHolder.getListView();
+
+        // show fragment for edit and delete assignment options
+        listView.setOnItemClickListener(
+                (AdapterView<?> parent, View view, int position, long id) -> {
+                     MyArrayAdapter myArrayAdapter = (MyArrayAdapter) parent.getAdapter();
+
+                     ViewGroup buttonGroup = new ViewGroup(view.getContext()) {
+                         @Override
+                         protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
+
+                         }
+                     };
+                     AssignmentDialogFragment assignmentDialogFragment = new AssignmentDialogFragment();
+                     assignmentDialogFragment.show(plannerFragment.getChildFragmentManager(), AssignmentDialogFragment.TAG);
+        });
+
+        // set adapter for each ViewHolder
         MyArrayAdapter myArrayAdapter = new MyArrayAdapter(viewGroup.getContext(), R.layout.assignment_list_item);
         listView.setAdapter(myArrayAdapter);
 
@@ -153,7 +183,10 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         MyArrayAdapter arrayAdapter = (MyArrayAdapter) viewHolder.getListView().getAdapter();
         arrayAdapter.clear(); // possibly add something to day so it doesn't have to clear and re-add unchanged datasets
-        //arrayAdapter.addAll(assignments);
+        arrayAdapter.notifyDataSetChanged();
+        Log.d("adapter", "position " + position + " isEmpty(): " + arrayAdapter.isEmpty());
+        PlannerActivity.logAssignments(assignments);
+        arrayAdapter.addAll(assignments);
         arrayAdapter.notifyDataSetChanged();
         Log.d("adapter", "" + arrayAdapter.getCount());
         //MyListAdapter currListAdapter = (MyListAdapter) currListView.getAdapter();
@@ -205,5 +238,18 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             super.clear();
         }
     }
+
+    public class MyDataSetObserver extends DataSetObserver {
+
+        public MyDataSetObserver() {
+
+        }
+
+        @Override
+        public void onChanged() {
+
+        }
+    }
+
 }
 

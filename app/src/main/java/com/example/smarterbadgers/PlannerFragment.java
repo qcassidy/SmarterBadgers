@@ -135,14 +135,17 @@ public class PlannerFragment extends Fragment {
         todoListRecyclerView.setLayoutManager(linearLayoutManager);
 
 
+        // create database
         SQLiteDatabase sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
         dbHelper = new DBHelper(sqLiteDatabase);
 
+        // create adapter for recycler view
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        todoListAdapter = new TodoListAdapter( calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR), dbHelper);
+        todoListAdapter = new TodoListAdapter( calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR), dbHelper, this);
         todoListRecyclerView.setAdapter(todoListAdapter);
         todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
 
+        // selection tracker to handle selection of recycler view items
         SelectionTracker tracker = new SelectionTracker.Builder<>(
                 "todolist-selection",
                 todoListRecyclerView,
@@ -170,6 +173,22 @@ public class PlannerFragment extends Fragment {
             super.onPostExecute(aLong);
 
             todoListAdapter.updateDay(new int[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+        }
+    }
+
+    public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(Assignment... assignments) {
+            Assignment assignment = assignments[0];
+            //dbHelper.updateAssignment(assignment);
+
+            return null;
+        }
+
+        @Override
+        protected  void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
         }
     }
 
