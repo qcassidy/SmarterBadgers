@@ -1,25 +1,23 @@
 package com.example.smarterbadgers;
 
 
-import android.os.Build;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * This is used to create elements that go inside the TodoListRecyclerView
@@ -37,9 +35,8 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
-        private final LinearLayout linearLayout;
+        private final ListView listView;
         private final View view;
-        private int position;
 
         public ViewHolder(View view) {
             super(view);
@@ -47,15 +44,15 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
             this.view = view;
             textView = (TextView) view.findViewById(R.id.textView);
-            linearLayout = (LinearLayout) view.findViewById(R.id.AssignmentsLinearLayout);
+            listView = (ListView) view.findViewById(R.id.todoListView);
         }
 
         public TextView getTextView() {
             return textView;
         }
 
-        public LinearLayout getLinearLayout() {
-            return linearLayout;
+        public ListView getListView() {
+            return listView;
         }
 
         public View getView() {
@@ -132,7 +129,12 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.todo_list_item, viewGroup, false);
 
-        return new ViewHolder(view);
+        ViewHolder viewHolder = new ViewHolder(view);
+        ListView listView = viewHolder.getListView();
+        MyArrayAdapter myArrayAdapter = new MyArrayAdapter(viewGroup.getContext(), R.layout.assignment_list_item);
+        listView.setAdapter(myArrayAdapter);
+
+        return viewHolder;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -147,16 +149,15 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         viewHolder.getTextView().setText(days.get(position).toString());
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
+        PlannerActivity.logAssignments(assignments);
 
-        viewHolder.linearLayout.removeAllViews();
-
-        if (assignments.size() == 0) {
-        //    TextView text = new TextView(viewHolder.linearLayout.getContext());
-        //    text.setText(days.get(position).toString());
-        //    viewHolder.getLinearLayout().addView(text);
-        }
-
-        tryExpand(viewHolder, position);
+        MyArrayAdapter arrayAdapter = (MyArrayAdapter) viewHolder.getListView().getAdapter();
+        arrayAdapter.clear(); // possibly add something to day so it doesn't have to clear and re-add unchanged datasets
+        //arrayAdapter.addAll(assignments);
+        arrayAdapter.notifyDataSetChanged();
+        Log.d("adapter", "" + arrayAdapter.getCount());
+        //MyListAdapter currListAdapter = (MyListAdapter) currListView.getAdapter();
+        //currListAdapter.setListData(assignments);
     }
 
     public void tryExpand(ViewHolder viewHolder, int position) {
@@ -164,13 +165,13 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         if (viewHolder.getView().isActivated()) {
             for (int i = 0; i < assignments.size(); i++) {
                 Assignment currAssignment = assignments.get(i);
-                TextView currView = new TextView(viewHolder.linearLayout.getContext());
-                currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
-                viewHolder.getLinearLayout().addView(currView);
+            //    TextView currView = new TextView(viewHolder.linearLayout.getContext());
+            //    currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
+            //    viewHolder.getLinearLayout().addView(currView);
             }
         }
         else {
-            viewHolder.linearLayout.removeAllViews();
+            //viewHolder.linearLayout.removeAllViews();
         }
     }
 
@@ -178,6 +179,31 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     @Override
     public int getItemCount() {
         return days.size();
+    }
+
+    public class MyArrayAdapter extends ArrayAdapter<Assignment> {
+
+        public MyArrayAdapter(@NonNull Context context, int resource) {
+            super(context, resource);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.assignment_list_item, parent, false);
+            }
+
+            TextView textView = convertView.findViewById(R.id.assignmentListTextView);
+            textView.setText(getItem(position).toString());
+
+            //return super.getView(position, convertView, parent);
+            return convertView;
+        }
+
+        @Override
+        public void clear() {
+            super.clear();
+        }
     }
 }
 

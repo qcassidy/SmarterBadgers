@@ -197,11 +197,10 @@ public class PlannerFragment extends Fragment {
                     TodoListAdapter.ViewHolder myViewHolder = ((TodoListAdapter.ViewHolder) holder);
                     Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
 
-                    ItemDetails myDetails = myViewHolder.getItemDetails();
                     myViewHolder.changeActivated();
                     todoListAdapter.tryExpand(myViewHolder, myViewHolder.getAdapterPosition());
-                    //todoListAdapter.notifyItemChanged(myViewHolder.getAdapterPosition());
 
+                    ItemDetails myDetails = myViewHolder.getItemDetails();
                     return myDetails;
                 }
             }

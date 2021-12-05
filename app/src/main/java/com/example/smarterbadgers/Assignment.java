@@ -102,4 +102,9 @@ public class Assignment {
     public void setDescription(String newDescription) {
         description = newDescription;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s\n\t%s", this.name, this.description);
+    }
 }
