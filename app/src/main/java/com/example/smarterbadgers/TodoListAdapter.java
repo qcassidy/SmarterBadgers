@@ -1,8 +1,11 @@
 package com.example.smarterbadgers;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +15,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -149,15 +159,30 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         listView.setOnItemClickListener(
                 (AdapterView<?> parent, View view, int position, long id) -> {
                      MyArrayAdapter myArrayAdapter = (MyArrayAdapter) parent.getAdapter();
+                     FragmentManager childFragmentManager = plannerFragment.getChildFragmentManager();
 
-                     ViewGroup buttonGroup = new ViewGroup(view.getContext()) {
+                     // go to edit assignment activity or delte assignment
+                     childFragmentManager.setFragmentResultListener("requestKey", plannerFragment, new FragmentResultListener() {
                          @Override
-                         protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
+                         public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle bundle) {
+                             // We use a String here, but any type that can be put in a Bundle is supported
+                             String result = bundle.getString("bundleKey");
 
+                             Log.d("DialogFragment", result);
+
+                             if (result == AssignmentDialogFragment.EDIT_ASSIGNMENT) {
+                                 Assignment assignment = myArrayAdapter.getItem(position);
+                                 plannerFragment.editAssignment(assignment);
+                             }
+                             else if (result == AssignmentDialogFragment.DELETE_ASSIGNMENT) {
+                                 Assignment assignment = myArrayAdapter.getItem(position);
+                                 plannerFragment.deleteAssignment(assignment);
+                             }
                          }
-                     };
+                     });
+
                      AssignmentDialogFragment assignmentDialogFragment = new AssignmentDialogFragment();
-                     assignmentDialogFragment.show(plannerFragment.getChildFragmentManager(), AssignmentDialogFragment.TAG);
+                     assignmentDialogFragment.show(childFragmentManager, AssignmentDialogFragment.TAG);
         });
 
         // set adapter for each ViewHolder
@@ -181,31 +206,12 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
         PlannerActivity.logAssignments(assignments);
 
+        // update array adapter with new data
         MyArrayAdapter arrayAdapter = (MyArrayAdapter) viewHolder.getListView().getAdapter();
         arrayAdapter.clear(); // possibly add something to day so it doesn't have to clear and re-add unchanged datasets
         arrayAdapter.notifyDataSetChanged();
-        Log.d("adapter", "position " + position + " isEmpty(): " + arrayAdapter.isEmpty());
-        PlannerActivity.logAssignments(assignments);
         arrayAdapter.addAll(assignments);
         arrayAdapter.notifyDataSetChanged();
-        Log.d("adapter", "" + arrayAdapter.getCount());
-        //MyListAdapter currListAdapter = (MyListAdapter) currListView.getAdapter();
-        //currListAdapter.setListData(assignments);
-    }
-
-    public void tryExpand(ViewHolder viewHolder, int position) {
-        ArrayList<Assignment> assignments = days.get(position).getAssignments();
-        if (viewHolder.getView().isActivated()) {
-            for (int i = 0; i < assignments.size(); i++) {
-                Assignment currAssignment = assignments.get(i);
-            //    TextView currView = new TextView(viewHolder.linearLayout.getContext());
-            //    currView.setText(currAssignment.getName() + ":\n\t" + currAssignment.getDescription() + "\n");
-            //    viewHolder.getLinearLayout().addView(currView);
-            }
-        }
-        else {
-            //viewHolder.linearLayout.removeAllViews();
-        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)

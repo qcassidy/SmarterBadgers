@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -100,7 +101,6 @@ public class PlannerFragment extends Fragment {
 
                             Assignment newAssignment = new Assignment(name, year + "/" + month + "/" + day, hour + ":" + minute, desc);
 
-                            //dbHelper.saveAssignment(newAssignment);
                             SaveAssignmentToDatabase databaseUpload = new SaveAssignmentToDatabase();
                             databaseUpload.execute(newAssignment);
                         }
@@ -131,6 +131,7 @@ public class PlannerFragment extends Fragment {
 
         // create recycler view for todolist
         RecyclerView todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
+        todoListRecyclerView.setNestedScrollingEnabled(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         todoListRecyclerView.setLayoutManager(linearLayoutManager);
 
@@ -177,20 +178,83 @@ public class PlannerFragment extends Fragment {
     }
 
     public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
+        Assignment assignment;
 
         @Override
         protected Long doInBackground(Assignment... assignments) {
-            Assignment assignment = assignments[0];
-            //dbHelper.updateAssignment(assignment);
+            assignment = assignments[0];
+            dbHelper.updateAssignment(assignments[0]);
 
             return null;
         }
 
         @Override
-        protected  void onPostExecute(Long aLong) {
+        protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
+
+            todoListAdapter.updateDay(new int[]{assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
         }
     }
+
+    public void editAssignment(Assignment assignment) {
+
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            String name = data.getStringExtra("name");
+                            String desc = data.getStringExtra("desc");
+                            String hour = data.getStringExtra("hour");
+                            String minute = data.getStringExtra("minute");
+                            String day = data.getStringExtra("day");
+                            String month = data.getStringExtra("month");
+                            String year = data.getStringExtra("year");
+
+                            assignment.setName(name);
+                            assignment.setDescription(desc);
+                            assignment.setDueDate(year + "/" + month + "/" + day);
+                            assignment. setDueTime(hour + ":" + minute);
+
+                            EditAssignmentToDatabase databaseUpload = new EditAssignmentToDatabase();
+                            databaseUpload.execute(assignment);
+                        }
+                    }
+                });
+
+        //Intent intent = new Intent(view.getContext(), EditAssignmentActivity.class);
+        //activityResultLauncher.launch(intent);
+    }
+
+    public class DeleteAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
+        Assignment assignment;
+
+        @Override
+        protected Long doInBackground(Assignment... assignments) {
+            assignment = assignments[0];
+            dbHelper.deleteAssignment(assignments[0]);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+
+            todoListAdapter.updateDay(new int[]{assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+
+            Toast toast = Toast.makeText(getContext(), "assignment deleted", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+    public void deleteAssignment(Assignment assignment) {
+        DeleteAssignmentToDatabase databaseDelete = new DeleteAssignmentToDatabase();
+        databaseDelete.execute(assignment);
+    }
+
 
 
     @Override
@@ -199,6 +263,7 @@ public class PlannerFragment extends Fragment {
        super.onDestroy();
     }
 
+    // used to allow selection on recycler view items
     private class MyDetailsLookup extends ItemDetailsLookup {
         RecyclerView recyclerView;
 
@@ -217,7 +282,6 @@ public class PlannerFragment extends Fragment {
                     Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
 
                     myViewHolder.changeActivated();
-                    todoListAdapter.tryExpand(myViewHolder, myViewHolder.getAdapterPosition());
 
                     ItemDetails myDetails = myViewHolder.getItemDetails();
                     return myDetails;

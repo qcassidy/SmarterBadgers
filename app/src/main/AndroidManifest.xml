@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmarterBadgers">
         <activity
+            android:name=".EditAssignmentActivity"
+            android:exported="false" />
+        <activity
             android:name=".CreateAssignmentActivity"
             android:exported="false" />
         <activity

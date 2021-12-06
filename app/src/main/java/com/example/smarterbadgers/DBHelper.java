@@ -37,6 +37,7 @@ public class DBHelper {
         int dueDateIndex = c.getColumnIndex("dueDate");
         int dueTimeIndex = c.getColumnIndex("dueTime");
         int descriptionIndex = c.getColumnIndex("description");
+        int idIndex = c.getColumnIndex("id");
 
         c.moveToFirst();
 
@@ -48,8 +49,9 @@ public class DBHelper {
             String dueDate = c.getString(dueDateIndex);
             String dueTime = c.getString(dueTimeIndex);
             String description = c.getString(descriptionIndex);
+            int id = Integer.parseInt(c.getString(idIndex));
 
-            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description);
+            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             assignmentsList.add(currAssignment);
             assignmentsList.add(currAssignment);
             c.moveToNext();
@@ -63,6 +65,7 @@ public class DBHelper {
         Cursor c = sqLiteDatabase.rawQuery(String.format("SELECT * from assignments WHERE assignments.dueMonth = '%d' and " +
                 "assignments.dueDay = '%d' and assignments.dueYear = '%d'", mdy[0], mdy[1], mdy[2]), null);
 
+        int idIndex = c.getColumnIndex("id");
         int nameIndex = c.getColumnIndex("name");
         int dueDateIndex = c.getColumnIndex("dueDate");
         int dueTimeIndex = c.getColumnIndex("dueTime");
@@ -78,10 +81,11 @@ public class DBHelper {
             String dueDate = c.getString(dueDateIndex);
             String dueTime = c.getString(dueTimeIndex);
             String description = c.getString(descriptionIndex);
+            int id = Integer.parseInt(c.getString(idIndex));
 
-            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description);
+            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             assignmentsList.add(currAssignment);
-            Log.d("assignment", "found assignment " + currAssignment.getName());
+            Log.d("assignment", "found assignment " + id + " " + currAssignment.getName());
             c.moveToNext();
         }
         c.close();
@@ -92,6 +96,7 @@ public class DBHelper {
     public ArrayList<Day> getAssignmentsFromYear(int year) {
         Cursor c = sqLiteDatabase.rawQuery(String.format(Locale.getDefault(), "SELECT * from assignments WHERE assignments.dueYear = '%d'", year), null);
 
+        int idIndex = c.getColumnIndex("id");
         int nameIndex = c.getColumnIndex("name");
         int dueDateIndex = c.getColumnIndex("dueDate");
         int dueTimeIndex = c.getColumnIndex("dueTime");
@@ -133,11 +138,13 @@ public class DBHelper {
             String description = c.getString(descriptionIndex);
             int dueDay = Integer.parseInt(c.getString(dueDayIndex));
             int dueDayOfYear = Integer.parseInt(c.getString(dueDayOfYearIndex)) - 1;
+            int id = Integer.parseInt(c.getString(idIndex));
 
-            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description);
+            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
 
             Log.d("assignment", String.format("adding %s (%s) to %s", name, dueDate, days.get(dueDayOfYear)));
             Log.d("assignment", "dueDayOfYear: " + dueDayOfYear);
+            Log.d("assignment", "found assignment " + id + " " + currAssignment.getName());
             days.get(dueDayOfYear).addAssignment(currAssignment);
             c.moveToNext();
         }
@@ -155,17 +162,28 @@ public class DBHelper {
                 currAssignment.getDueYear(), currAssignment.getDueMonth(), currAssignment.getDueDay(), currAssignment.getDueHour(),
                 currAssignment.getDueMin(), currAssignment.getDueDayOfYear()));
 
-        Log.d("assignment", "Saved assignment: " + currAssignment.getName());
+        // get and set id
+        Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM assignments ORDER BY id DESC LIMIT 1", null);
+        c.moveToFirst();
+        String id = c.getString(0);
+        currAssignment.setId(Integer.parseInt(id));
     }
 
-    public void updateAssignment(Assignment currAssignment, String newName, String newDueDate) {
-        sqLiteDatabase.execSQL(String.format("UPDATE assignments set name = '%s', dueDate = '%s', dueTime = '%s', description = '%s'" +
-                        " where name = '%s' and dueDate = '%s' and dueTime = '%s' and description = '%s'",
-                newName, newDueDate, currAssignment.getName(), currAssignment.getDueDate()));
+    public void updateAssignment(Assignment currAssignment) {
+        sqLiteDatabase.execSQL(String.format(Locale.getDefault(), "UPDATE assignments set name = '%s', dueDate = '%s', dueTime = '%s', description = '%s'"
+                         + ", dueYear = '%s', dueMonth = '%d', dueDay = '%d', dueHour = '%d', dueMin = '%d', dueDayOfYear = '%d')"
+                         + " where id = '%d'",
+                currAssignment.getName(), currAssignment.getDueDate(), currAssignment.getDueTime(), currAssignment.getDescription(), currAssignment.getDueYear(),
+                currAssignment.getDueMonth(), currAssignment.getDueDay(), currAssignment.getDueHour(), currAssignment.getDueMin(), currAssignment.getDueDayOfYear(), currAssignment.getId()));
+
     }
 
     public void clearDatabase() {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS assignments");
+    }
+
+    public void deleteAssignment(Assignment currAssignment) {
+        sqLiteDatabase.execSQL("DELETE FROM assignments WHERE id = " + currAssignment.getId());
     }
 
 

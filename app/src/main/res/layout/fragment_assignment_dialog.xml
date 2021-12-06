@@ -18,7 +18,7 @@
             android:backgroundTint="#FFFFFF"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="Edit"
+            android:text="EDIT"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
             android:textColor="@color/black"
             app:cornerRadius="0dp" />

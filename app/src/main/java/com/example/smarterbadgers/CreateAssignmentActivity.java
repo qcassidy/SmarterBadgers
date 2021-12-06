@@ -45,7 +45,6 @@ public class CreateAssignmentActivity extends AppCompatActivity {
        String hour = intent.getStringExtra("hour");
        String minute = intent.getStringExtra("minute");
 
-        Log.d("ass", month + "/" + day + "/" + year + " " + hour + ":" + minute);
        Intent returnIntent = new Intent();
        returnIntent.putExtra("name", name);
        returnIntent.putExtra("desc", desc);
@@ -56,13 +55,6 @@ public class CreateAssignmentActivity extends AppCompatActivity {
        returnIntent.putExtra("minute", minute);
        setResult(Activity.RESULT_OK, returnIntent);
 
-       // Assignment newAssignment = new Assignment(name, year + "/" + month  + "/" + day, hour + ":" + minute, desc);
-
-       // Context context = getApplicationContext();
-       // SQLiteDatabase sqLiteDatabase = context.openOrCreateDatabase("assignments", Context.MODE_PRIVATE, null);
-       // DBHelper dbHelper = new DBHelper(sqLiteDatabase);
-       // dbHelper.saveAssignment(newAssignment);
-
-        this.finish();
+       this.finish();
     }
 }

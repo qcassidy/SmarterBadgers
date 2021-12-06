@@ -15,6 +15,7 @@ public class Assignment {
     private int dueHour;
     private int dueMin;
     private int dueDayOfYear;
+    private int id;
 
     public Assignment(String name, String dueDate, String dueTime, String description) {
         this.name = name;
@@ -36,7 +37,37 @@ public class Assignment {
         dueDayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
     }
 
-    public Assignment(String name, String description, int dueYear, int dueMonth, int dueDay, int dueHour, int dueMin) {
+    /**
+     *
+     * @param name
+     * @param dueDate must be in format YYYY/MM/DD where MM is zero based (jan=0,feb=1,...)
+     * @param dueTime must be in format HH:MM
+     * @param description
+     * @param id
+     */
+    public Assignment(String name, String dueDate, String dueTime, String description, int id) {
+        this.id = id;
+        this.name = name;
+        this.dueDate = dueDate;
+        this.dueTime = dueTime;
+        this.description = description;
+
+        String[] dueDateArray = dueDate.split("/");
+        dueYear = Integer.valueOf(dueDateArray[0]);
+        dueMonth = Integer.valueOf(dueDateArray[1]);
+        dueDay = Integer.valueOf(dueDateArray[2]);
+
+        String[] dueTimeArray = dueTime.split(":");
+        dueHour = Integer.valueOf(dueTimeArray[0]);
+        dueMin = Integer.valueOf(dueTimeArray[1]);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(dueYear, dueMonth, dueDay);
+        dueDayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
+    }
+
+    public Assignment(String name, String description, int dueYear, int dueMonth, int dueDay, int dueHour, int dueMin, int id) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.dueYear = dueYear;
@@ -89,18 +120,62 @@ public class Assignment {
         return dueDayOfYear;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
     public void setName(String newName) {
         name = newName;
     }
+
     public void setDueDate(String newDueDate) {
         dueDate = newDueDate;
+        String[] dueDateArray = dueDate.split("/");
+        dueYear = Integer.valueOf(dueDateArray[0]);
+        dueMonth = Integer.valueOf(dueDateArray[1]);
+        dueDay = Integer.valueOf(dueDateArray[2]);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(dueYear, dueMonth, dueDay);
+        dueDayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
     }
+
     public void setDueTime(String newDueTime) {
         dueTime = newDueTime;
+        String[] dueTimeArray = dueTime.split(":");
+        dueHour = Integer.valueOf(dueTimeArray[0]);
+        dueMin = Integer.valueOf(dueTimeArray[1]);
     }
 
     public void setDescription(String newDescription) {
         description = newDescription;
+    }
+
+    public void setDueYear(int dueYear) {
+        this.dueYear = dueYear;
+    }
+
+    public void setDueMonth(int dueMonth) {
+        this.dueMonth = dueMonth;
+    }
+
+    public void setDueDay(int dueDay) {
+        this.dueDay = dueDay;
+    }
+
+    public void setDueHour(int dueHour) {
+        this.dueHour = dueHour;
+    }
+
+    public void setDueMin(int dueMin) {
+        this.dueMin = dueMin;
+    }
+
+    public void setDueDayOfYear(int dueDayOfYear) {
+        this.dueDayOfYear = dueDayOfYear;
     }
 
     @Override
