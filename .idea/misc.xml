@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_profile.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/activity_create_assignment.xml" value="0.23143115942028986" />
         <entry key="app/src/main/res/layout/activity_planner.xml" value="0.23143115942028986" />
         <entry key="app/src/main/res/layout/activity_timer.xml" value="0.335" />
