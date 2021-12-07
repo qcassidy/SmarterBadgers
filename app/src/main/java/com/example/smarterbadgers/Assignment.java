@@ -16,6 +16,7 @@ public class Assignment {
     private int dueMin;
     private int dueDayOfYear;
     private int id;
+    private int oldDueYear, oldDueMonth, oldDueDay;
 
     public Assignment(String name, String dueDate, String dueTime, String description) {
         this.name = name;
@@ -154,6 +155,16 @@ public class Assignment {
         description = newDescription;
     }
 
+    public void changeDate(int[] mdy) {
+        oldDueDay = dueDay;
+        oldDueMonth = dueMonth;
+        oldDueYear = dueYear;
+
+        dueMonth = mdy[0];
+        dueDay = mdy[1];
+        dueYear = mdy[2];
+    }
+
     public void setDueYear(int dueYear) {
         this.dueYear = dueYear;
     }
@@ -180,6 +191,19 @@ public class Assignment {
 
     @Override
     public String toString() {
-        return String.format("%s\n\t%s", this.name, this.description);
+        //return String.format("%s\n\t%s", this.name, this.description);
+        return this.name;
+    }
+
+    public int getOldDueYear() {
+        return oldDueYear;
+    }
+
+    public int getOldDueMonth() {
+        return oldDueMonth;
+    }
+
+    public int getOldDueDay() {
+        return oldDueDay;
     }
 }

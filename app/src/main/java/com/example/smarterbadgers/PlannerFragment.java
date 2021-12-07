@@ -1,6 +1,7 @@
 package com.example.smarterbadgers;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -51,6 +54,13 @@ public class PlannerFragment extends Fragment {
     View view;
     final int CREATE_ASSIGNMENT_ACTIVITY = 1;
     ActivityResultLauncher<Intent> createAssignmentActivityResultLauncher;
+    ActivityResultLauncher<Intent> editAssignmentActivityResultLauncher;
+    Assignment currAssignment;
+    RecyclerView todoListRecyclerView;
+    int dayPicked;
+    int monthPicked;
+    int yearPicked;
+    TimePickerDialog timePickerDialog;
 
     public PlannerFragment() {
         // Required empty public constructor
@@ -79,8 +89,6 @@ public class PlannerFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_planner, container, false);
 
         calendarFragment = new CalendarFragment();
-        getChildFragmentManager().beginTransaction().replace(R.id.CalendarFragmentContainer, calendarFragment).commit();
-
         int[] selectedDate = calendarFragment.getSelectedDate();
 
         // hand result of create assignment activity
@@ -107,13 +115,57 @@ public class PlannerFragment extends Fragment {
                     }
                 });
 
+        editAssignmentActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            String name = data.getStringExtra("name");
+                            String desc = data.getStringExtra("desc");
+                            int hour = data.getIntExtra("hour", -1);
+                            int minute = data.getIntExtra("minute", -1);
+                            int day = data.getIntExtra("day", -1);
+                            int month = data.getIntExtra("month", -1);
+                            int year = data.getIntExtra("year", -1);
+
+                            currAssignment.setName(name);
+                            currAssignment.setDescription(desc);
+                            currAssignment.changeDate(new int[] {month, day, year});
+                            currAssignment.setDueTime(hour + ":" + minute);
+
+                            EditAssignmentToDatabase databaseUpload = new EditAssignmentToDatabase();
+                            databaseUpload.execute(currAssignment);
+                        }
+                    }
+                });
+
         // set add assignment button to launch result launcher from above
         Button addAssignmentButton = view.findViewById(R.id.addAssignmentButton);
         addAssignmentButton.setOnClickListener( (View view) -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+                DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+                       dayPicked = d;
+                       monthPicked = m;
+                       yearPicked = y;
+
+                       timePickerDialog.show();
+                    }
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+                datePickerDialog.show();
+            }
+
+
+            timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                    int[] selectedDate = calendarFragment.getSelectedDate();
+                    //int[] selectedDate = calendarFragment.getSelectedDate();
+                    int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
 
                     Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
                     intent.putExtra("hour", "" + hour);
@@ -125,13 +177,10 @@ public class PlannerFragment extends Fragment {
                     createAssignmentActivityResultLauncher.launch(intent);
                 }
             }, 0, 0, false);
-
-            timePickerDialog.show();
         });
 
         // create recycler view for todolist
-        RecyclerView todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
-        todoListRecyclerView.setNestedScrollingEnabled(true);
+        todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         todoListRecyclerView.setLayoutManager(linearLayoutManager);
 
@@ -173,7 +222,10 @@ public class PlannerFragment extends Fragment {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
 
-            todoListAdapter.updateDay(new int[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+            ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
+            daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+
+            todoListAdapter.updateDay(daysToUpdate);
         }
     }
 
@@ -192,40 +244,31 @@ public class PlannerFragment extends Fragment {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
 
-            todoListAdapter.updateDay(new int[]{assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+
+            ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
+            daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+
+            if (assignment.getOldDueYear() != 0) {
+                daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getOldDueDay(), assignment.getOldDueYear()});
+            }
+
+            todoListAdapter.updateDay(daysToUpdate);
+
         }
     }
 
+
     public void editAssignment(Assignment assignment) {
-
-        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            String name = data.getStringExtra("name");
-                            String desc = data.getStringExtra("desc");
-                            String hour = data.getStringExtra("hour");
-                            String minute = data.getStringExtra("minute");
-                            String day = data.getStringExtra("day");
-                            String month = data.getStringExtra("month");
-                            String year = data.getStringExtra("year");
-
-                            assignment.setName(name);
-                            assignment.setDescription(desc);
-                            assignment.setDueDate(year + "/" + month + "/" + day);
-                            assignment. setDueTime(hour + ":" + minute);
-
-                            EditAssignmentToDatabase databaseUpload = new EditAssignmentToDatabase();
-                            databaseUpload.execute(assignment);
-                        }
-                    }
-                });
-
-        //Intent intent = new Intent(view.getContext(), EditAssignmentActivity.class);
-        //activityResultLauncher.launch(intent);
+        currAssignment = assignment;
+        Intent intent = new Intent(getContext(), EditAssignmentActivity.class);
+        intent.putExtra("name", currAssignment.getName());
+        intent.putExtra("desc", currAssignment.getDescription());
+        intent.putExtra("hour", currAssignment.getDueHour());
+        intent.putExtra("minute", currAssignment.getDueMin());
+        intent.putExtra("day", currAssignment.getDueDay());
+        intent.putExtra("month", currAssignment.getDueMonth());
+        intent.putExtra("year", currAssignment.getDueYear());
+        editAssignmentActivityResultLauncher.launch(intent);
     }
 
     public class DeleteAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
@@ -243,8 +286,10 @@ public class PlannerFragment extends Fragment {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
 
-            todoListAdapter.updateDay(new int[]{assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
+            ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
+            daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
 
+            todoListAdapter.updateDay(daysToUpdate);
             Toast toast = Toast.makeText(getContext(), "assignment deleted", Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -279,7 +324,7 @@ public class PlannerFragment extends Fragment {
                 RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
                 if (holder instanceof TodoListAdapter.ViewHolder) {
                     TodoListAdapter.ViewHolder myViewHolder = ((TodoListAdapter.ViewHolder) holder);
-                    Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
+                    //Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
 
                     myViewHolder.changeActivated();
 

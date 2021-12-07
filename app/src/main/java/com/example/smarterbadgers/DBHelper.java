@@ -171,7 +171,7 @@ public class DBHelper {
 
     public void updateAssignment(Assignment currAssignment) {
         sqLiteDatabase.execSQL(String.format(Locale.getDefault(), "UPDATE assignments set name = '%s', dueDate = '%s', dueTime = '%s', description = '%s'"
-                         + ", dueYear = '%s', dueMonth = '%d', dueDay = '%d', dueHour = '%d', dueMin = '%d', dueDayOfYear = '%d')"
+                         + ", dueYear = '%s', dueMonth = '%d', dueDay = '%d', dueHour = '%d', dueMin = '%d', dueDayOfYear = '%d'"
                          + " where id = '%d'",
                 currAssignment.getName(), currAssignment.getDueDate(), currAssignment.getDueTime(), currAssignment.getDescription(), currAssignment.getDueYear(),
                 currAssignment.getDueMonth(), currAssignment.getDueDay(), currAssignment.getDueHour(), currAssignment.getDueMin(), currAssignment.getDueDayOfYear(), currAssignment.getId()));

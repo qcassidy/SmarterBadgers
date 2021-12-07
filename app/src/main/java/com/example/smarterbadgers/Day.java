@@ -28,6 +28,10 @@ public class Day {
         assignments = newAssignments;
     }
 
+    public void removeAssignment(Assignment assignment) {
+        this.assignments.remove(assignment);
+    }
+
     @Override
     public String toString() {
         return String.format("%d/%d/%d", m + 1, d, y);
