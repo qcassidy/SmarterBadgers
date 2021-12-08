@@ -163,6 +163,8 @@ public class Assignment {
         dueMonth = mdy[0];
         dueDay = mdy[1];
         dueYear = mdy[2];
+
+        dueDate = oldDueYear + "/" + oldDueMonth + "/" + oldDueDay;
     }
 
     public void setDueYear(int dueYear) {

@@ -14,7 +14,7 @@
         <Button
             android:id="@+id/EditAssignmentButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:backgroundTint="#FFFFFF"
             android:insetTop="0dp"
             android:insetBottom="0dp"
@@ -27,7 +27,7 @@
             android:id="@+id/DeleteAssignmentButton"
             style="@style/Theme.SmarterBadgers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:backgroundTint="#D50000"
             android:insetTop="0dp"
             android:insetBottom="0dp"

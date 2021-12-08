@@ -30,6 +30,7 @@ public class AssignmentDialogFragment extends AppCompatDialogFragment {
     public static final String DELETE_ASSIGNMENT = "delete_assignment";
     private Button editButton;
     private Button deleteButton;
+    protected AppCompatDialog dialog;
 
 
     public AssignmentDialogFragment() {
@@ -46,9 +47,9 @@ public class AssignmentDialogFragment extends AppCompatDialogFragment {
     @Override
     public @NonNull
     Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        Dialog dialog = new AppCompatDialog(requireContext());
+        dialog = new AppCompatDialog(requireContext());
         dialog.setCanceledOnTouchOutside(true);
-        dialog.create();
+        dialog.supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
 

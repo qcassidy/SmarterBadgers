@@ -3,14 +3,17 @@ package com.example.smarterbadgers;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -36,6 +39,7 @@ public class EditAssignmentActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // todo add cancel button
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_assignment);
 
@@ -60,6 +64,7 @@ public class EditAssignmentActivity extends AppCompatActivity {
             twoDigitMinute = String.format(Locale.getDefault(), "%d%d", 0, currMinute);
         }
 
+        // convert to 12 hour format
         int startHour = intent.getIntExtra("hour", -1);
         hour = startHour;
         String morningOrNight = "am";
@@ -67,6 +72,9 @@ public class EditAssignmentActivity extends AppCompatActivity {
         if (startHour > 12) {
             morningOrNight = "pm";
             displayHour -= 12;
+        }
+        if (startHour == 0) {
+            displayHour = 12;
         }
         time = String.format(Locale.getDefault(), "%d:%s%s", displayHour, twoDigitMinute, morningOrNight);
 
@@ -76,6 +84,7 @@ public class EditAssignmentActivity extends AppCompatActivity {
         timeTextView = findViewById(R.id.EditAssignmentTimeText);
         Button button = findViewById(R.id.SaveEditAssignmentButton);
 
+        // update variables and  after time change
         timeTextView.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -98,6 +107,9 @@ public class EditAssignmentActivity extends AppCompatActivity {
                             morningOrNight = "pm";
                             displayHour -= 12;
                         }
+                        if (hour == 0) {
+                            displayHour = 12;
+                        }
 
                         timeTextView.setText(displayHour + ":" + twoDigitMinute + morningOrNight);
                     }
@@ -107,6 +119,29 @@ public class EditAssignmentActivity extends AppCompatActivity {
             }
         });
 
+
+        // change color on touch
+        timeTextView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
+                    timeTextView.setBackgroundColor(Color.LTGRAY);
+                    return false;
+                } else {
+                    if (MotionEvent.ACTION_UP == motionEvent.getAction()) {
+                        timeTextView.setBackgroundColor(Color.WHITE);
+                    } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
+                        //textView.setBackgroundColor(Color.WHITE);
+                    } else if (MotionEvent.ACTION_CANCEL == motionEvent.getAction()) {
+                        timeTextView.setBackgroundColor(Color.WHITE);
+                    }
+                    return false;
+                }
+            }
+        });
+
+        // update variables and textview after date change
         dateTextView.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -120,13 +155,33 @@ public class EditAssignmentActivity extends AppCompatActivity {
                             month = m;
                             dayOfMonth = d;
 
-                            dateTextView.setText(month + "/" + dayOfMonth + "/" + year);
+                            dateTextView.setText((month + 1) + "/" + dayOfMonth + "/" + year);
                         }
 
                     }, startYear, startMonth, startDay);
 
                     datePickerDialog.show();
                 }
+            }
+        });
+
+        // change color on touch
+        dateTextView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
+                    dateTextView.setBackgroundColor(Color.LTGRAY);
+                } else {
+                    if (MotionEvent.ACTION_UP == motionEvent.getAction()) {
+                        dateTextView.setBackgroundColor(Color.WHITE);
+                    } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
+                        //textView.setBackgroundColor(Color.WHITE);
+                    } else if (MotionEvent.ACTION_CANCEL == motionEvent.getAction()) {
+                        dateTextView.setBackgroundColor(Color.WHITE);
+                    }
+                }
+                return false;
             }
         });
 

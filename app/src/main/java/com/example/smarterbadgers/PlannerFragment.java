@@ -133,6 +133,7 @@ public class PlannerFragment extends Fragment {
                             currAssignment.setName(name);
                             currAssignment.setDescription(desc);
                             currAssignment.changeDate(new int[] {month, day, year});
+                            currAssignment.setDueDate(year + "/" + month + "/" + day);
                             currAssignment.setDueTime(hour + ":" + minute);
 
                             EditAssignmentToDatabase databaseUpload = new EditAssignmentToDatabase();
@@ -248,11 +249,14 @@ public class PlannerFragment extends Fragment {
             ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
             daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
 
+            Log.d("oldDueYear", "" + assignment.getOldDueYear());
             if (assignment.getOldDueYear() != 0) {
-                daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getOldDueDay(), assignment.getOldDueYear()});
+                daysToUpdate.add(new Integer[] {assignment.getOldDueMonth(), assignment.getOldDueDay(), assignment.getOldDueYear()});
             }
+            Log.d("edit", daysToUpdate.get(0)[1] + " " + daysToUpdate.get(1)[1]);
 
             todoListAdapter.updateDay(daysToUpdate);
+            todoListAdapter.assignmentDialogFragment.dialog.cancel();
 
         }
     }
@@ -289,9 +293,11 @@ public class PlannerFragment extends Fragment {
             ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
             daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
 
+            todoListAdapter.removeAssignment(assignment);
             todoListAdapter.updateDay(daysToUpdate);
             Toast toast = Toast.makeText(getContext(), "assignment deleted", Toast.LENGTH_SHORT);
             toast.show();
+            todoListAdapter.assignmentDialogFragment.dialog.cancel();
         }
     }
 
@@ -326,7 +332,7 @@ public class PlannerFragment extends Fragment {
                     TodoListAdapter.ViewHolder myViewHolder = ((TodoListAdapter.ViewHolder) holder);
                     //Log.d("TodoList", "item #" + myViewHolder.getItemDetails().getPosition() + " was selected");
 
-                    myViewHolder.changeActivated();
+                    //myViewHolder.changeActivated();
 
                     ItemDetails myDetails = myViewHolder.getItemDetails();
                     return myDetails;

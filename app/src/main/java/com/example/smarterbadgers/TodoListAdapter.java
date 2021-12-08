@@ -2,10 +2,9 @@ package com.example.smarterbadgers;
 
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.database.DataSetObserver;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,32 +13,20 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * This is used to create elements that go inside the TodoListRecyclerView
@@ -49,9 +36,10 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     DBHelper dbHelper;
     ArrayList<Day> days;
     int[] mdy;
-    int currYear;
+    int maxYear;
     boolean expandAll = false;
     PlannerFragment plannerFragment;
+    AssignmentDialogFragment assignmentDialogFragment;
     ArrayList<Day> latestRunOfEmptyDays;
     boolean onRunOfEmptyDays;
 
@@ -95,7 +83,6 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             ItemDetailsLookup.ItemDetails itemDetails = new ItemDetailsLookup.ItemDetails() {
                 @Override
                 public int getPosition() {
-                    Log.d("ViewHolder", "position: " + getAdapterPosition());
                     return getAdapterPosition();
                 }
 
@@ -133,18 +120,20 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         this.plannerFragment = plannerFragment;
 
-        currYear = y;
+        maxYear = y + 1;
 
         this.mdy = new int[]{m, d, y};
 
         //days = new ArrayList<>();
-        days = dbHelper.getAssignmentsFromYear(y);
         this.dbHelper = dbHelper;
+        days = dbHelper.getAssignmentsFromYear(y);
+        days.addAll(dbHelper.getAssignmentsFromYear(y + 1));
 
         latestRunOfEmptyDays = new ArrayList<>();
     }
 
     public void updateDay(ArrayList<Integer[]> updatedDays) {
+        // todo account for days that are not currently in the recyclerview, add new days
         for (int i = 0; i < updatedDays.size(); i++) {
             Integer[] mdy = updatedDays.get(i);
             Calendar calendar = Calendar.getInstance();
@@ -162,12 +151,13 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                     offset += 365;
                 }
             }
-            Day currDay = days.get(offset + calendar.get(Calendar.DAY_OF_YEAR) - 1);
+            int position = offset + calendar.get(Calendar.DAY_OF_YEAR) - 1;
+            Day currDay = days.get(position);
 
             currDay.setAssignments(dbHelper.getAssignmentsFromDay((new int[]{mdy[0], mdy[1], mdy[2]})));
 
-            this.notifyItemChanged(calendar.get(Calendar.DAY_OF_YEAR) - 1);
-            Log.d("todoList", "item changed");
+            this.notifyItemChanged(position);
+            Log.d("todoList", "item changed " + position);
             PlannerActivity.logAssignments(currDay.getAssignments());
         }
     }
@@ -227,16 +217,17 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-
-        Log.d("days", "" + days.size());
+        //Log.d("days", "" + days.size());
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         if (days.size() - position < 50) {
-            days.addAll(this.dbHelper.getAssignmentsFromYear(++currYear));
+            days.addAll(this.dbHelper.getAssignmentsFromYear(++maxYear));
         }
 
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
         NestedScrollView nestedScrollView = viewHolder.getNestedScrollView();
+        //Log.d("position", "" + position);
+        //PlannerActivity.logAssignments(assignments);
 
 /*        if (assignments.size() == 0) {
             viewHolder.getTextView().setText("");
@@ -287,16 +278,31 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                             if (result == AssignmentDialogFragment.EDIT_ASSIGNMENT) {
                                 plannerFragment.editAssignment(assignment);
                             } else if (result == AssignmentDialogFragment.DELETE_ASSIGNMENT) {
-                                // todo dialog to confirm a delete
-                                plannerFragment.deleteAssignment(assignment);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(plannerFragment.getContext());
+                                builder.setMessage("Are you sure you want to delete this assignment?");
+                                builder.setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        plannerFragment.deleteAssignment(assignment);
+                                    }
+                                });
+                                builder.setNegativeButton("Go Back", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+
+                                    }
+                                });
+                                AlertDialog confirmDeleteDialog = builder.create();
+                                confirmDeleteDialog.show();
                             }
 
                         }
                     });
 
-                    AssignmentDialogFragment assignmentDialogFragment = new AssignmentDialogFragment();
+                    assignmentDialogFragment = new AssignmentDialogFragment();
                     assignmentDialogFragment.show(childFragmentManager, AssignmentDialogFragment.TAG);
-
                     return true;
                 }
             });
