@@ -1,12 +1,15 @@
 package com.example.smarterbadgers;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +39,9 @@ public class TimerFragment extends Fragment {
     private long timeLeftMilliseconds = 600000;
     private long timeLeftBreakMilliseconds = 300000;
     private int breaksRemaining = 0;
+    private int minStudied = 25;
+
+
 
     public TimerFragment() {
         // Required empty public constructor
@@ -99,6 +105,7 @@ public class TimerFragment extends Fragment {
         timeLeftMilliseconds = (long)(Integer.parseInt(editTextNumber.getText().toString())) * 60000;
         int min = (int) timeLeftMilliseconds/1000 /60;
         int sec = (int) timeLeftMilliseconds/1000 %60;
+        minStudied = min;
         String timeLeftString = String.format("%02d:%02d", min, sec);
         timerTextView.setText(timeLeftString);
         enterMinTextView.setVisibility(View.INVISIBLE);
@@ -127,6 +134,10 @@ public class TimerFragment extends Fragment {
                 timerTextView.setVisibility(View.INVISIBLE);
                 enterMinTextView.setVisibility(View.VISIBLE);
                 editTextNumber.setVisibility(View.VISIBLE);
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers",Context.MODE_PRIVATE);
+                int sharedint = sharedPreferences.getInt("timestudied", 0);
+                sharedint += minStudied;
+                sharedPreferences.edit().putInt("timestudied",sharedint).apply();
             }
         }.start();
     }
@@ -155,6 +166,11 @@ public class TimerFragment extends Fragment {
                         breakButton.setVisibility(View.INVISIBLE);
                         enterMinTextView.setVisibility(View.VISIBLE);
                         editTextNumber.setVisibility(View.VISIBLE);
+                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers",Context.MODE_PRIVATE);
+                        minStudied -= min;
+                        int sharedint = sharedPreferences.getInt("timestudied", 0);
+                        sharedint += minStudied;
+                        sharedPreferences.edit().putInt("timestudied",sharedint).apply();
                     }
                 });
         AlertDialog alertDialog = builder.create();
