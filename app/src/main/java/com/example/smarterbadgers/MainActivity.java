@@ -41,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.timer:
                     fragment = new TimerFragment();
                     break;
+                case R.id.profile:
+                    fragment = new ProfileFragment();
+                    break;
+//                case R.id.settings:
+//                    fragment = new SettingFragment();
+//                    break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
             return false;
