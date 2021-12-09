@@ -39,6 +39,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -50,7 +51,6 @@ public class PlannerFragment extends Fragment {
 
     TodoListAdapter todoListAdapter;
     DBHelper dbHelper;
-    CalendarFragment calendarFragment;
     View view;
     final int CREATE_ASSIGNMENT_ACTIVITY = 1;
     ActivityResultLauncher<Intent> createAssignmentActivityResultLauncher;
@@ -61,6 +61,7 @@ public class PlannerFragment extends Fragment {
     int monthPicked;
     int yearPicked;
     TimePickerDialog timePickerDialog;
+
 
     public PlannerFragment() {
         // Required empty public constructor
@@ -87,9 +88,6 @@ public class PlannerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_planner, container, false);
-
-        calendarFragment = new CalendarFragment();
-        int[] selectedDate = calendarFragment.getSelectedDate();
 
         // hand result of create assignment activity
         createAssignmentActivityResultLauncher = registerForActivityResult(
@@ -145,8 +143,8 @@ public class PlannerFragment extends Fragment {
         // set add assignment button to launch result launcher from above
         Button addAssignmentButton = view.findViewById(R.id.addAssignmentButton);
         addAssignmentButton.setOnClickListener( (View view) -> {
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
                 DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int y, int m, int d) {
@@ -165,7 +163,6 @@ public class PlannerFragment extends Fragment {
             timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
                 @Override
                 public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                    //int[] selectedDate = calendarFragment.getSelectedDate();
                     int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
 
                     Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
@@ -177,7 +174,7 @@ public class PlannerFragment extends Fragment {
 
                     createAssignmentActivityResultLauncher.launch(intent);
                 }
-            }, 0, 0, false);
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
         });
 
         // create recycler view for todolist
@@ -194,7 +191,7 @@ public class PlannerFragment extends Fragment {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         todoListAdapter = new TodoListAdapter( calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR), dbHelper, this);
         todoListRecyclerView.setAdapter(todoListAdapter);
-        todoListRecyclerView.scrollToPosition(calendar.get(Calendar.DAY_OF_YEAR) - 1);
+        todoListRecyclerView.scrollToPosition(todoListAdapter.getPositionOfDate(new int[] {calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR)}));
 
         // selection tracker to handle selection of recycler view items
         SelectionTracker tracker = new SelectionTracker.Builder<>(
@@ -341,4 +338,12 @@ public class PlannerFragment extends Fragment {
             return null;
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        onSaveInstanceState(null);
+    }
+
+
 }

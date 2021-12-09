@@ -93,6 +93,97 @@ public class DBHelper {
         return assignmentsList;
     }
 
+    public static int getNumberOfDaysInYear(int year) {
+        int numDays = 365;
+        if (year % 4 != 0) {
+        }
+        else if (year % 100 != 0) {
+            numDays = 366;
+        }
+        else if (year % 400 != 0) {
+        }
+        else {
+            numDays = 366;
+        }
+
+        return numDays;
+    }
+
+    public ArrayList<Day> getAssignmentsFromYearRange(int startYear, int endYear) {
+        StringBuilder builder = new StringBuilder();
+
+
+
+        // create query for sqllite database
+        Calendar calendar = Calendar.getInstance();
+        ArrayList<Day> days = new ArrayList<>();
+        builder.append("SELECT * from assignments WHERE ");
+        for (int i = startYear; i <= endYear; i++) {
+            builder.append("assignments.dueYear = " + i);
+
+            if (i != endYear) {
+                builder.append(" OR ");
+            }
+
+            // create Day object for each day of a year
+            int numDays = getNumberOfDaysInYear(i);
+            calendar.set(i, 0, 1);
+            for (int j = 0; j < numDays; j++) {
+                Day newDay = new Day(new int[] { calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR) } );
+                days.add(newDay);
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+        }
+        builder.append(" ORDER BY dueYear ASC, dueMonth ASC, dueDay ASC, dueHour ASC, dueMin ASC");
+        String query = builder.toString();
+        Log.d("getrange", query);
+        Log.d("getrangesize", days.size() + "");
+
+        // get selected range of assignments
+        Cursor c = sqLiteDatabase.rawQuery(query, null);
+        int idIndex = c.getColumnIndex("id");
+        int nameIndex = c.getColumnIndex("name");
+        int dueDateIndex = c.getColumnIndex("dueDate");
+        int dueTimeIndex = c.getColumnIndex("dueTime");
+        int descriptionIndex = c.getColumnIndex("description");
+        int dueDayIndex = c.getColumnIndex("dueDay");
+        int dueDayOfYearIndex = c.getColumnIndex("dueDayOfYear");
+        int dueYearIndex = c.getColumnIndex("dueYear");
+
+        c.moveToFirst();
+        int dayOfYearOffset = 0;
+        int previousYear = startYear;
+        while (!c.isAfterLast()) {
+
+            String name = c.getString(nameIndex);
+            String dueDate = c.getString(dueDateIndex);
+            String dueTime = c.getString(dueTimeIndex);
+            String description = c.getString(descriptionIndex);
+            int dueDay = Integer.parseInt(c.getString(dueDayIndex));
+            int dueDayOfYear = Integer.parseInt(c.getString(dueDayOfYearIndex)) - 1;
+            int id = Integer.parseInt(c.getString(idIndex));
+            int dueYear = Integer.parseInt(c.getString(dueYearIndex));
+
+            if (dueYear != previousYear) {
+                dayOfYearOffset += getNumberOfDaysInYear(previousYear);
+                previousYear = dueYear;
+            }
+
+            Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
+
+            //Log.d("assignment", String.format("adding %s (%s) to %s", name, dueDate, days.get(dueDayOfYear + dayOfYearOffset)));
+            //Log.d("assignment", "dueDayOfYear: " + dueDayOfYear);
+            //Log.d("assignment", "found assignment " + id + " " + currAssignment.getName());
+
+
+            days.get(dueDayOfYear + dayOfYearOffset).addAssignment(currAssignment);
+            c.moveToNext();
+        }
+        c.close();
+
+        return days;
+    }
+
     public ArrayList<Day> getAssignmentsFromYear(int year) {
         Cursor c = sqLiteDatabase.rawQuery(String.format(Locale.getDefault(), "SELECT * from assignments WHERE assignments.dueYear = '%d'", year), null);
 
@@ -109,18 +200,7 @@ public class DBHelper {
         ArrayList<Assignment> assignmentsList = new ArrayList<>();
         ArrayList<Day> days = new ArrayList<>();
 
-        int numDays = 365;
-        if (year % 4 != 0) {
-        }
-        else if (year % 100 != 0) {
-            numDays = 366;
-        }
-        else if (year % 400 != 0) {
-        }
-        else {
-            numDays = 366;
-        }
-
+        int numDays = getNumberOfDaysInYear(year);
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, 0, 1);

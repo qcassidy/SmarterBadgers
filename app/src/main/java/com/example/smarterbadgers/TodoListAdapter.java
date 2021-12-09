@@ -37,6 +37,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     ArrayList<Day> days;
     int[] mdy;
     int maxYear;
+    int minYear;
     boolean expandAll = false;
     PlannerFragment plannerFragment;
     AssignmentDialogFragment assignmentDialogFragment;
@@ -121,15 +122,30 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         this.plannerFragment = plannerFragment;
 
         maxYear = y + 1;
+        minYear = y - 1;
 
         this.mdy = new int[]{m, d, y};
 
         //days = new ArrayList<>();
         this.dbHelper = dbHelper;
-        days = dbHelper.getAssignmentsFromYear(y);
-        days.addAll(dbHelper.getAssignmentsFromYear(y + 1));
+        days = dbHelper.getAssignmentsFromYearRange(minYear, maxYear);
 
         latestRunOfEmptyDays = new ArrayList<>();
+
+        plannerFragment.todoListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (RecyclerView.SCROLL_STATE_DRAGGING == newState) {
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
     }
 
     public void updateDay(ArrayList<Integer[]> updatedDays) {
@@ -140,18 +156,19 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             calendar.set(Calendar.YEAR, mdy[2]);
             calendar.set(Calendar.DAY_OF_MONTH, mdy[1]);
             calendar.set(Calendar.MONTH, mdy[0]);
+            int position = getPositionOfDate(new int[] {calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.YEAR)});
 
-            int offset = 0;
-            for (int j = 0; j < mdy[2] - this.mdy[2]; j++) {
-                GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
-
-                if (gregorianCalendar.isLeapYear(this.mdy[2] + j)) {
-                    offset += 366;
-                } else {
-                    offset += 365;
-                }
+            // handle the case where a new date is added earlier than the earliest year on the todoList
+            int yearDifference = mdy[2] - minYear;
+            if (yearDifference < 0) {
+                ArrayList<Day> earlierDays = dbHelper.getAssignmentsFromYearRange(minYear + yearDifference, minYear - 1);
+                days.addAll(0, earlierDays);
+                this.notifyItemRangeInserted(0, earlierDays.size());
+                minYear += yearDifference;
             }
-            int position = offset + calendar.get(Calendar.DAY_OF_YEAR) - 1;
+
+            // handle the case where a new date is added later than the latest year on the todolist
+
             Day currDay = days.get(position);
 
             currDay.setAssignments(dbHelper.getAssignmentsFromDay((new int[]{mdy[0], mdy[1], mdy[2]})));
@@ -162,13 +179,28 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         }
     }
 
+    /**
+     *
+     * @param mdy
+     * @return returns position of date in days ArrayList, -1 if date is not in range
+     */
     public int getPositionOfDate(int[] mdy) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, mdy[2]);
         calendar.set(Calendar.DAY_OF_MONTH, mdy[1]);
         calendar.set(Calendar.MONTH, mdy[0]);
 
-        return calendar.get(calendar.DAY_OF_YEAR) - 1;
+        int offset = 0;
+        for (int j = 0; j < mdy[2] - minYear; j++) {
+            if (mdy[2] - minYear < 0) {
+                return -1;
+            }
+            offset += DBHelper.getNumberOfDaysInYear(minYear + j);
+        }
+        int position = offset + calendar.get(Calendar.DAY_OF_YEAR) - 1;
+
+        Log.d("getPosition", "position: " + position + " " + mdy[0] + "/" + mdy[1] + "/" + mdy[2]);
+        return position;
     }
 
     public void removeAssignment(Assignment assignment) {
@@ -177,17 +209,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         calendar.set(Calendar.DAY_OF_MONTH, assignment.getDueDay());
         calendar.set(Calendar.MONTH, assignment.getDueMonth());
 
-        int offset = 0;
-        for (int j = 0; j < mdy[2] - this.mdy[2]; j++) {
-            GregorianCalendar gregorianCalendar = (GregorianCalendar) GregorianCalendar.getInstance();
-
-            if (gregorianCalendar.isLeapYear(this.mdy[2] + j)) {
-                offset += 366;
-            } else {
-                offset += 365;
-            }
-        }
-        int position = offset + calendar.get(Calendar.DAY_OF_YEAR) - 1;
+        int position = getPositionOfDate(new int[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
 
         Day currDay = days.get(position);
         currDay.removeAssignment(assignment);
@@ -221,8 +243,11 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         if (days.size() - position < 50) {
-            days.addAll(this.dbHelper.getAssignmentsFromYear(++maxYear));
+            ArrayList<Day> newDays = this.dbHelper.getAssignmentsFromYear(++maxYear);
+            days.addAll(newDays);
+            notifyItemRangeInserted(days.size(), newDays.size());
         }
+
 
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
         NestedScrollView nestedScrollView = viewHolder.getNestedScrollView();
@@ -295,6 +320,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                                     }
                                 });
                                 AlertDialog confirmDeleteDialog = builder.create();
+                                confirmDeleteDialog.setCanceledOnTouchOutside(true);
                                 confirmDeleteDialog.show();
                             }
 

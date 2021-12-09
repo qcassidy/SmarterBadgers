@@ -10,50 +10,38 @@
         android:id="@+id/EditAssignmentNameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="169dp"
         android:ems="10"
         android:gravity="center_horizontal"
         android:hint="Name"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/EditAssignmentDescText"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/EditAssignmentDescText"
-        android:layout_width="310dp"
-        android:layout_height="319dp"
-        android:ems="10"
-        android:gravity="start|top"
-        android:hint="Description"
-        android:inputType="textMultiLine"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EditAssignmentNameText" />
 
     <TextView
         android:id="@+id/EditAssignmentTimeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
         android:layout_marginEnd="100dp"
+        android:layout_marginBottom="80dp"
         android:hint="time"
         android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EditAssignmentDescText" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
     <TextView
         android:id="@+id/EditAssignmentDateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="52dp"
         android:hint="date"
         android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="@+id/EditAssignmentTimeText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EditAssignmentDescText" />
+        app:layout_constraintTop_toTopOf="@+id/EditAssignmentTimeText" />
 
     <Button
         android:id="@+id/SaveEditAssignmentButton"
@@ -66,5 +54,25 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/EditAssignmentDateText" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        android:layout_width="326dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="147dp"
+        app:layout_constraintBottom_toTopOf="@+id/EditAssignmentTimeText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/EditAssignmentNameText">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/EditAssignmentDescText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:hint="Description" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
