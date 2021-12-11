@@ -13,6 +13,9 @@
             android:name=".EditAssignmentActivity"
             android:exported="false" />
         <activity
+            android:name=".profile"
+            android:exported="true" />
+        <activity
             android:name=".CreateAssignmentActivity"
             android:exported="false" />
         <activity
