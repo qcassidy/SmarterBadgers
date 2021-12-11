@@ -113,7 +113,7 @@ public class EditAssignmentActivity extends AppCompatActivity {
 
                         timeTextView.setText(displayHour + ":" + twoDigitMinute + morningOrNight);
                     }
-                }, 0, 0, false);
+                }, hour, minute, false);
 
                 timePickerDialog.show();
             }

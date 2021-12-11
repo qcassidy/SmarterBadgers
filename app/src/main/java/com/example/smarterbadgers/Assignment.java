@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.Calendar;
 
 public class Assignment {
+    public static final String COMPLETED_ASSIGNMENT_PREFERENCE_KEY = "completed_assignment_preference_key";
     private String name;
     private String dueDate;
     private String dueTime;
@@ -17,6 +18,9 @@ public class Assignment {
     private int dueDayOfYear;
     private int id;
     private int oldDueYear, oldDueMonth, oldDueDay;
+    private boolean completed;
+    private boolean hidden;
+    private boolean expanded;
 
     public Assignment(String name, String dueDate, String dueTime, String description) {
         this.name = name;
@@ -125,6 +129,18 @@ public class Assignment {
         return id;
     }
 
+    public boolean getCompleted() {
+        return completed;
+    }
+
+    public boolean getHidden() {
+        return hidden;
+    }
+
+    public boolean getExpanded() {
+        return expanded;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -151,8 +167,20 @@ public class Assignment {
         dueMin = Integer.valueOf(dueTimeArray[1]);
     }
 
+    public void toggleExpanded() {
+        expanded = !expanded;
+    }
+
     public void setDescription(String newDescription) {
         description = newDescription;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public void changeDate(int[] mdy) {

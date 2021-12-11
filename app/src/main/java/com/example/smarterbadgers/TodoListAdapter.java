@@ -5,7 +5,10 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -13,20 +16,25 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 /**
  * This is used to create elements that go inside the TodoListRecyclerView
@@ -43,6 +51,8 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     AssignmentDialogFragment assignmentDialogFragment;
     ArrayList<Day> latestRunOfEmptyDays;
     boolean onRunOfEmptyDays;
+    boolean needLaterDays = false;
+    boolean needEarlierDays = false;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -168,6 +178,14 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             }
 
             // handle the case where a new date is added later than the latest year on the todolist
+            int yearDifferenceMax = mdy[2] - maxYear;
+            if (yearDifferenceMax > 0) {
+                int prevDaysSize = days.size();
+                ArrayList<Day> laterDays = dbHelper.getAssignmentsFromYearRange(maxYear + 1, mdy[2]);
+                days.addAll(laterDays);
+                this.notifyItemRangeInserted(prevDaysSize, laterDays.size());
+                maxYear += yearDifferenceMax;
+            }
 
             Day currDay = days.get(position);
 
@@ -203,6 +221,12 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         return position;
     }
 
+    public void clearDatabase() {
+        dbHelper.clearDatabase();
+        days = dbHelper.getAssignmentsFromYearRange(minYear, maxYear);
+        notifyDataSetChanged();
+    }
+
     public void removeAssignment(Assignment assignment) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, assignment.getDueYear());
@@ -215,6 +239,19 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         currDay.removeAssignment(assignment);
 
         this.notifyItemChanged(position);
+    }
+
+    public void addNextYear() {
+        int oldSize = days.size();
+        ArrayList<Day> newDays = dbHelper.getAssignmentsFromYear(++maxYear);
+        days.addAll(newDays);
+        notifyItemRangeInserted(oldSize, newDays.size());
+    }
+
+    public void addPrevYear() {
+        ArrayList<Day> newDays = dbHelper.getAssignmentsFromYear(--minYear);
+        days.addAll(0, newDays);
+        notifyItemRangeInserted(0, newDays.size());
     }
 
     public class AssignmentEditView extends View {
@@ -242,11 +279,23 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         //Log.d("days", "" + days.size());
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
+
         if (days.size() - position < 50) {
-            ArrayList<Day> newDays = this.dbHelper.getAssignmentsFromYear(++maxYear);
-            days.addAll(newDays);
-            notifyItemRangeInserted(days.size(), newDays.size());
+            needLaterDays = true;
+            //notifyItemRangeInserted(days.size(), newDays.size());
         }
+        else {
+            needLaterDays = false;
+        }
+
+        if (position < 50) {
+            needEarlierDays = true;
+        }
+        else {
+            needEarlierDays = false;
+        }
+
+
 
 
         ArrayList<Assignment> assignments = days.get(position).getAssignments();
@@ -280,14 +329,45 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         if (onRunOfEmptyDays) {
             return;
         }
+
+        // sort assignments to display in chronological order
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            assignments.sort((assignment1, assignment2) -> {
+                if (assignment1.getDueHour() != assignment2.getDueHour()) {
+                    return assignment1.getDueHour() - assignment2.getDueHour();
+                }
+                else {
+                    return assignment1.getDueMin() - assignment2.getDueMin();
+                }
+           } );
+        }
+
         // create TextView for each assignment and set OnClickListener that gives edit and delete options
         for (int i = 0; i < assignments.size(); i++) {
             Assignment assignment = assignments.get(i);
-            TextView textView = new TextView(nestedScrollView.getContext());
+            LinearLayout linearLayout = new LinearLayout(nestedScrollView.getContext());
+            linearLayout.setLayoutParams((new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT)));
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+            TextView textView = new TextView(linearLayout.getContext());
             textView.setText(assignment.toString());
             textView.setGravity(Gravity.CENTER_HORIZONTAL);
+            textView.setLayoutParams((new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT)));
 
-            // go to edit or delete
+            // strike through text if assignment is completed
+            textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            if (assignment.getCompleted()) {
+                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+
+            linearLayout.addView(textView);
+
+
+            // go to edit or delete dialog
             textView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -333,6 +413,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                 }
             });
 
+            final boolean[] expanded = {false};
             // change background color on touch
             textView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
@@ -342,7 +423,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                         textView.setBackgroundColor(Color.LTGRAY);
                         return false;
                     } else {
-                        if (MotionEvent.ACTION_UP == motionEvent.getAction()) {
+                        if (MotionEvent.ACTION_UP == motionEvent.getAction())  {
                             textView.setBackgroundColor(Color.WHITE);
                         } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
                             //textView.setBackgroundColor(Color.WHITE);
@@ -354,9 +435,22 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                 }
             });
 
+            if (assignment.getExpanded()) {
+                expandAssignment(assignment, linearLayout, textView);
+            }
+
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (!assignment.getExpanded()) {
+                        expandAssignment(assignment, linearLayout, textView);
+                    }
+                    else {
+                        linearLayout.removeAllViews();
+                        linearLayout.addView(textView);
+                        assignment.toggleExpanded();
+                    }
+
                 }
 
 
@@ -364,20 +458,117 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
             // go to edit assignment activity or delete assignment
 
-            viewHolder.getNestedLinearLayout().addView(textView);
+            viewHolder.getNestedLinearLayout().addView(linearLayout);
         }
-
-       /* // update array adapter with new data
-        MyArrayAdapter arrayAdapter = (MyArrayAdapter) viewHolder.getListView().getAdapter();
-        arrayAdapter.clear(); // possibly add something to day so it doesn't have to clear and re-add unchanged datasets
-        arrayAdapter.notifyDataSetChanged();
-        arrayAdapter.addAll(assignments);
-        arrayAdapter.notifyDataSetChanged();*/
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return days.size();
+    }
+
+    public void expandAssignment(Assignment assignment, LinearLayout linearLayout, TextView assignmentNameTextView) {
+
+        // desc text view
+        TextView assignmentDescText = new TextView(linearLayout.getContext());
+        assignmentDescText.setText("\n" + assignment.getDescription() + "\n");
+        assignmentDescText.setLayoutParams((new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT)));
+        assignmentDescText.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        // duetime text view
+        int minute = assignment.getDueMin();
+        int hour = assignment.getDueHour();
+        String twoDigitMinute = Integer.toString(minute);
+        if (minute < 10) {
+            twoDigitMinute = String.format(Locale.getDefault(), "%d%d", 0, minute);
+        }
+
+        String morningOrNight = "am";
+        int displayHour = hour;
+        if (hour > 12) {
+            morningOrNight = "pm";
+            displayHour -= 12;
+        }
+        if (hour == 0) {
+            displayHour = 12;
+        }
+
+        TextView assignmentDueTimeText = new TextView(linearLayout.getContext());
+        assignmentDueTimeText.setText("Due at: " + displayHour + ":" + twoDigitMinute + morningOrNight);
+        assignmentDueTimeText.setLayoutParams((new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT)));
+        assignmentDueTimeText.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        // create complete button
+        Button completeButton = new Button(linearLayout.getContext());
+        String buttonText = "Mark Assignment Complete";
+        //completeButton.setBackgroundColor(Color.GREEN);
+        if (assignment.getCompleted()) {
+            buttonText = "Unmark Assignment Complete";
+            //completeButton.setBackgroundColor(Color.RED);
+            assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        else {
+            assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+        completeButton.setText(buttonText);
+        completeButton.setLayoutParams((new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT)));
+        completeButton.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        completeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                markAssignmentComplete(assignment);
+                String buttonText = "Mark Assignment Complete";
+                //completeButton.setBackgroundColor(Color.GREEN);
+                if (assignment.getCompleted()) {
+                    buttonText = "Unmark Assignment Complete";
+                //    completeButton.setBackgroundColor(Color.RED);
+                    assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+                else {
+                    assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                }
+                completeButton.setText(buttonText);
+
+                dbHelper.updateAssignment(assignment);
+                Log.d("completed", "" + assignment.getCompleted());
+            }
+        });
+
+        linearLayout.addView(assignmentDescText);
+        linearLayout.addView(assignmentDueTimeText);
+        linearLayout.addView(completeButton);
+
+
+        assignmentNameTextView.setBackgroundColor(Color.LTGRAY);
+        assignment.toggleExpanded();
+    }
+
+    private void markAssignmentComplete(Assignment assignment) {
+        assignment.setCompleted(!assignment.getCompleted());
+
+        // update number of assignments completed
+        SharedPreferences sharedPref = plannerFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
+        int numAssignmentsCompleted = sharedPref.getInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, 0);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        if (assignment.getCompleted()) {
+            editor.putInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, numAssignmentsCompleted + 1);
+        }
+        else {
+            editor.putInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, numAssignmentsCompleted - 1);
+        }
+        editor.apply();
+
+        Log.d("completed assignments", "" + sharedPref.getInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, 0));
+
+        dbHelper.updateAssignment(assignment);
     }
 }

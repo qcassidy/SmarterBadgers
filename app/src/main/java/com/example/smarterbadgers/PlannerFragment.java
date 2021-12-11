@@ -1,12 +1,15 @@
 package com.example.smarterbadgers;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -26,16 +29,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -81,6 +91,7 @@ public class PlannerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -88,6 +99,7 @@ public class PlannerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_planner, container, false);
+
 
         // hand result of create assignment activity
         createAssignmentActivityResultLauncher = registerForActivityResult(
@@ -140,47 +152,33 @@ public class PlannerFragment extends Fragment {
                     }
                 });
 
-        // set add assignment button to launch result launcher from above
-        Button addAssignmentButton = view.findViewById(R.id.addAssignmentButton);
-        addAssignmentButton.setOnClickListener( (View view) -> {
-            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int y, int m, int d) {
-                       dayPicked = d;
-                       monthPicked = m;
-                       yearPicked = y;
-
-                       timePickerDialog.show();
-                    }
-                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-                datePickerDialog.show();
-            }
-
-
-            timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                    int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
-
-                    Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
-                    intent.putExtra("hour", "" + hour);
-                    intent.putExtra("minute", "" + minute);
-                    intent.putExtra("year", "" + selectedDate[0]);
-                    intent.putExtra("month", "" + selectedDate[1]);
-                    intent.putExtra("day", "" + selectedDate[2]);
-
-                    createAssignmentActivityResultLauncher.launch(intent);
-                }
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
-        });
-
         // create recycler view for todolist
         todoListRecyclerView = view.findViewById(R.id.TodoListRecyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         todoListRecyclerView.setLayoutManager(linearLayoutManager);
+        // add new days to recycler view if beginning or end is reached
+        todoListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (recyclerView.canScrollVertically(1) && todoListAdapter.needLaterDays) {
+                    Log.d("canScrollVert", "need later days");
+                    todoListAdapter.addNextYear();
+                }
+
+                if (recyclerView.canScrollVertically(-1) && todoListAdapter.needEarlierDays) {
+                    Log.d("canScrollVert", "need earlier days");
+                    todoListAdapter.addPrevYear();
+                }
+
+            }
+        });
+
 
 
         // create database
@@ -202,7 +200,94 @@ public class PlannerFragment extends Fragment {
                 StorageStrategy.createLongStorage())
                 .build();
 
+        ActionMenuView actionMenuView = new ActionMenuView(getContext());
+
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        menuInflater.inflate(R.menu.fragment_planner_action_bar, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        switch(item.getItemId()) {
+            case R.id.goToDateMenuItem:
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        DatePickerDialog goToDatePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+                                int position = todoListAdapter.getPositionOfDate(new int[] {m,d,y});
+                                todoListRecyclerView.scrollToPosition(position);
+                            }
+
+                        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH));
+                        goToDatePickerDialog.show();
+                    }
+                    return true;
+            case R.id.clearAllAssignmentsMenuItem:
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setMessage("Are you sure you want to delete all assignments? This cannot be undone.");
+                alertDialogBuilder.setNegativeButton("Go Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                alertDialogBuilder.setPositiveButton("Delete All Assignments", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        todoListAdapter.clearDatabase();
+                        Toast toast = new Toast(getContext());
+                        toast.setText("All assignments deleted");
+                        toast.show();
+                    }
+                });
+
+                alertDialogBuilder.create().show();
+                dbHelper.clearDatabase();
+                return true;
+            case R.id.addAssignmentMenuItem:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+                            dayPicked = d;
+                            monthPicked = m;
+                            yearPicked = y;
+
+                            timePickerDialog.show();
+                        }
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+                    datePickerDialog.show();
+                }
+
+
+                timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                        int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
+
+                        Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
+                        intent.putExtra("hour", "" + hour);
+                        intent.putExtra("minute", "" + minute);
+                        intent.putExtra("year", "" + selectedDate[0]);
+                        intent.putExtra("month", "" + selectedDate[1]);
+                        intent.putExtra("day", "" + selectedDate[2]);
+
+                        createAssignmentActivityResultLauncher.launch(intent);
+                    }
+                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+                return true;
+            default:
+                return false;
+        }
+
     }
 
     public class SaveAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
