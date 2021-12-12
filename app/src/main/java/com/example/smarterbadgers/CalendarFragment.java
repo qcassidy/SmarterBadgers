@@ -18,10 +18,10 @@ import java.util.Date;
  */
 public class CalendarFragment extends Fragment {
 
-    private CalendarView calendarView;
-    private int selectedYear;
-    private int selectedMonth;
-    private int selectedDay;
+    protected CalendarView calendarView;
+    protected int selectedYear;
+    protected int selectedMonth;
+    protected int selectedDay;
 
     public CalendarFragment() {
         // Required empty public constructor
@@ -54,11 +54,11 @@ public class CalendarFragment extends Fragment {
                 selectedYear = year;
                 selectedMonth = month;
                 selectedDay = day;
+
             }
         });
 
         return inflatedView;
-
     }
 
     /**

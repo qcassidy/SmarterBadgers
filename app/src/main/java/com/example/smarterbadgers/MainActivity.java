@@ -1,8 +1,11 @@
 package com.example.smarterbadgers;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -12,6 +15,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
+    int breaks;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +32,21 @@ public class MainActivity extends AppCompatActivity {
         // this will crash the app if you choose anything other than Planner
         bottomNavBar.setOnItemSelectedListener(bottomnavFunction);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(PlannerFragment.ASSIGNMENT_NOTIFICATION_CHANNEL_ID, PlannerFragment.ASSIGNMENT_NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+        breaks = 2;
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new TimerFragment()).commit();
+    }
+
+    public int getBreaks(){
+        return breaks;
+    }
+
+    public void setBreaks(int b) {
+        breaks = b;
     }
     private NavigationBarView.OnItemSelectedListener bottomnavFunction = new NavigationBarView.OnItemSelectedListener() {
         @Override
@@ -40,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.timer:
                     fragment = new TimerFragment();
+                    break;
+                case R.id.profile:
+                    fragment = new ProfileFragment();
+                    break;
+                case R.id.settings:
+                    fragment = new SettingsFragment();
                     break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
