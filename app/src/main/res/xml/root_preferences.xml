@@ -1,0 +1,37 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="Notification">
+
+
+        <SwitchPreferenceCompat
+            app:title="New Notification Reminder"
+            app:summaryOn="Notifications are on"
+            app:summaryOff="Notifications are off"
+            />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        app:title="Permissions">
+
+        <SwitchPreferenceCompat
+            app:title="Location Permissions"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="User Settings">
+
+        <EditTextPreference
+
+            app:title="Username"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+
+
+</PreferenceScreen>

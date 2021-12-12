@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.profile:
                     fragment = new ProfileFragment();
                     break;
-//                case R.id.settings:
-//                    fragment = new SettingFragment();
-//                    break;
+                case R.id.settings:
+                    fragment = new SettingsFragment();
+                    break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
             return false;

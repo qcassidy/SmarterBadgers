@@ -34,7 +34,12 @@ public class ProfileFragment extends Fragment {
         ProfileFragment fragment = new ProfileFragment();
         return fragment;
     }
-    private ImageView achieve;
+    private ImageView achieveOne;
+    private ImageView achieveTwo;
+    private ImageView achieveThree;
+    private ImageView achieveFour;
+    private ImageView achieveFive;
+    private ImageView achieveSix;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,11 +57,26 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        achieve = (ImageView) view.findViewById(R.id.imageView8);
-        achieve.setOnClickListener(new View.OnClickListener() {
+        //View view2 = inflater.inflate(R.layout.fragment_profile, container, false);
+        achieveOne = (ImageView) view.findViewById(R.id.imageView8);
+        achieveTwo = (ImageView) view.findViewById(R.id.imageView9);
+        achieveThree = (ImageView) view.findViewById(R.id.imageView);
+        achieveOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
                 openDialog();
+            }
+        });
+        achieveTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                openDialogTwo();
+            }
+        });
+        achieveThree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                openDialogThree();
             }
         });
         return view;
@@ -64,8 +84,16 @@ public class ProfileFragment extends Fragment {
 
     public void openDialog(){
         AchievementDialog exampleDialog = new AchievementDialog();
-        //exampleDialog.show(getSupportFragmentManager(), "example dialog");
-        //exampleDialog.show(getSupportFragmentManager(), "example dialog"));
         exampleDialog.show(getActivity().getSupportFragmentManager(), "example dialog");
+    }
+
+    public void openDialogTwo(){
+        DialogTwo achievementTwo = new DialogTwo();
+        achievementTwo.show(getActivity().getSupportFragmentManager(), "example dialog");
+    }
+
+    public void openDialogThree(){
+        DialogThree achievementThree = new DialogThree();
+        achievementThree.show(getActivity().getSupportFragmentManager(), "example dialog");
     }
 }

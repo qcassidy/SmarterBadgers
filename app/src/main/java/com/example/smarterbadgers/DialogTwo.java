@@ -4,20 +4,17 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 
-
-public class AchievementDialog extends AppCompatDialogFragment {
-    private ImageView testone;
+public class DialogTwo extends AppCompatDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("About this Cheese: It's Yummy")
-                .setMessage("Date Obtained: 9/13/21 \nTime Spent Studying: 45 min \nAssignments completed: CS407")
+        builder.setTitle("This is dialog 2")
+                .setMessage("This is a test")
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
