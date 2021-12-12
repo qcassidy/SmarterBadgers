@@ -82,7 +82,7 @@ public class CreateAssignmentActivity extends AppCompatActivity {
                 return;
             }
 
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
             calendar.set(Calendar.MINUTE, Integer.parseInt(minute));
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour));
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day));
@@ -92,12 +92,20 @@ public class CreateAssignmentActivity extends AppCompatActivity {
             calendar.add(Calendar.HOUR_OF_DAY, -notifyHoursBefore);
 
             Calendar currentCalendar = Calendar.getInstance(TimeZone.getDefault());
-            if (calendar.getTimeInMillis() - currentCalendar.getTimeInMillis() < 0) {
+            if (calendar.before(currentCalendar)) {
+                calendar.add(Calendar.HOUR_OF_DAY, notifyHoursBefore);
                 long timeDiff = calendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
                 long milliInHour = 3600000;
                 long hours = timeDiff / milliInHour;
                 Toast toast = new Toast(getApplicationContext());
-                toast.setText("notification hours before due date is in the past. Hours before must be less than " + hours);
+                toast.setDuration(Toast.LENGTH_LONG);
+
+                if (hours < 0) {
+                    toast.setText("Cannot set notification for assignment in the past.");
+                }
+                else {
+                    toast.setText(notifyHoursBefore + " hours before the due date is in the past. Hours before must be less than or equal to " + hours + ".");
+                }
                 toast.show();
                 return;
             }

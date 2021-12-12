@@ -18,8 +18,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class EditAssignmentActivity extends AppCompatActivity {
     private String name;
@@ -212,6 +215,42 @@ public class EditAssignmentActivity extends AppCompatActivity {
         int notifyHoursBefore = Integer.parseInt(hoursNotifyBeforeText.getText().toString());
 
 
+        if (notify) {
+            if (notifyHoursBefore < 0) {
+                Toast toast = new Toast(getApplicationContext());
+                toast.setText("notification hours before due date cannot be negative");
+                toast.show();
+                return;
+            }
+
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.YEAR, year);
+
+            calendar.add(Calendar.HOUR_OF_DAY, -notifyHoursBefore);
+
+            Calendar currentCalendar = Calendar.getInstance(TimeZone.getDefault());
+            if (calendar.before(currentCalendar)) {
+                calendar.add(Calendar.HOUR_OF_DAY, notifyHoursBefore);
+                long timeDiff = calendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+                long milliInHour = 3600000;
+                long hours = timeDiff / milliInHour;
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_LONG);
+
+                if (hours < 0) {
+                    toast.setText("Cannot set notification for assignment in the past.");
+                }
+                else {
+                    toast.setText(notifyHoursBefore + " hours before the due date is in the past. Hours before must be less than or equal to " + hours + ".");
+                }
+                toast.show();
+                return;
+            }
+        }
         Intent returnIntent = new Intent();
         returnIntent.putExtra("name", newName);
         returnIntent.putExtra("desc", newDesc);
