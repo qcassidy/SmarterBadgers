@@ -1,12 +1,17 @@
 package com.example.smarterbadgers;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -15,10 +20,11 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -36,20 +42,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ActionMenuView;
-import android.widget.Button;
-import android.widget.CalendarView;
 import android.widget.DatePicker;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
-import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -59,6 +58,9 @@ import java.util.TimeZone;
  */
 public class PlannerFragment extends Fragment {
 
+    final static String ASSIGNMENT_NOTIFICATION_ID = "assignment_notification_id_";
+    final static String ASSIGNMENT_NOTIFICATION_CHANNEL_NAME = "Assignment Notifications";
+    final static String ASSIGNMENT_NOTIFICATION_CHANNEL_ID = "assignment_notification_channel_id";
     TodoListAdapter todoListAdapter;
     DBHelper dbHelper;
     View view;
@@ -116,8 +118,15 @@ public class PlannerFragment extends Fragment {
                             String day = data.getStringExtra("day");
                             String month = data.getStringExtra("month");
                             String year = data.getStringExtra("year");
+                            boolean notify = data.getBooleanExtra("notify", false);
+                            int notifyHoursBefore = data.getIntExtra("notifyHours", 0);
+
+                            Log.d("notify", "" + notify + " " + notifyHoursBefore);
+
 
                             Assignment newAssignment = new Assignment(name, year + "/" + month + "/" + day, hour + ":" + minute, desc);
+                            newAssignment.setNotify(notify);
+                            newAssignment.setNotifyHoursBefore(notifyHoursBefore);
 
                             SaveAssignmentToDatabase databaseUpload = new SaveAssignmentToDatabase();
                             databaseUpload.execute(newAssignment);
@@ -139,12 +148,16 @@ public class PlannerFragment extends Fragment {
                             int day = data.getIntExtra("day", -1);
                             int month = data.getIntExtra("month", -1);
                             int year = data.getIntExtra("year", -1);
+                            boolean notify = data.getBooleanExtra("notify", false);
+                            int notifyHoursBefore = data.getIntExtra("notifyHoursBefore", 0);
 
                             currAssignment.setName(name);
                             currAssignment.setDescription(desc);
                             currAssignment.changeDate(new int[] {month, day, year});
                             currAssignment.setDueDate(year + "/" + month + "/" + day);
                             currAssignment.setDueTime(hour + ":" + minute);
+                            currAssignment.setNotify(notify);
+                            currAssignment.setNotifyHoursBefore(notifyHoursBefore);
 
                             EditAssignmentToDatabase databaseUpload = new EditAssignmentToDatabase();
                             databaseUpload.execute(currAssignment);
@@ -308,12 +321,40 @@ public class PlannerFragment extends Fragment {
             ArrayList<Integer[]> daysToUpdate = new ArrayList<>();
             daysToUpdate.add(new Integer[] {assignment.getDueMonth(), assignment.getDueDay(), assignment.getDueYear()});
 
+            // create notificaiton for assignment if user selected
+            if (assignment.shouldNotify()) {
+                createNotification(assignment);
+            }
+
             todoListAdapter.updateDay(daysToUpdate);
         }
     }
 
-    public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
-        Assignment assignment;
+    public static class AlarmBroadcastReceiver extends BroadcastReceiver {
+
+        public static final String ACTION_ALARM_BROADCAST_RECEIVER = "action_alarm_broadcast_receiver_badgers";
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d("alarm", "alarm received");
+            String name = intent.getStringExtra("name");
+            int hoursBefore = intent.getIntExtra("hoursBefore", 0);
+            int id = intent.getIntExtra("id", -1);
+
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context,ASSIGNMENT_NOTIFICATION_CHANNEL_ID);
+            builder.setSmallIcon(R.drawable.ic_baseline_assignment_24);
+            builder.setContentTitle(name);
+            builder.setContentText("Your assignment is due in " + hoursBefore + " hours!");
+            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+            notificationManagerCompat.notify(id, builder.build());
+        }
+    }
+
+
+public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
+    Assignment assignment;
 
         @Override
         protected Long doInBackground(Assignment... assignments) {
@@ -337,10 +378,38 @@ public class PlannerFragment extends Fragment {
             }
             Log.d("edit", daysToUpdate.get(0)[1] + " " + daysToUpdate.get(1)[1]);
 
+            if (assignment.shouldNotify()) {
+                createNotification(assignment);
+            }
+
             todoListAdapter.updateDay(daysToUpdate);
             todoListAdapter.assignmentDialogFragment.dialog.cancel();
 
         }
+    }
+
+    public void createNotification(Assignment assignment) {
+        Intent notificationIntent = new Intent(getContext(), AlarmBroadcastReceiver.class);
+        notificationIntent.setAction(AlarmBroadcastReceiver.ACTION_ALARM_BROADCAST_RECEIVER);
+        notificationIntent.putExtra("name", assignment.getName());
+        notificationIntent.putExtra("hoursBefore", assignment.getNotifyHoursBefore());
+        notificationIntent.putExtra("id", assignment.getId());
+
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(), assignment.getId(), notificationIntent, PendingIntent.FLAG_MUTABLE);
+
+        Calendar calendar = Calendar.getInstance();
+        Log.d("hour", " " + assignment.getDueHour());
+        calendar.set(Calendar.YEAR, assignment.getDueYear());
+        calendar.set(Calendar.MONTH, assignment.getDueMonth());
+        calendar.set(Calendar.DAY_OF_MONTH, assignment.getDueDay());
+        calendar.set(Calendar.HOUR_OF_DAY, assignment.getDueHour());
+        calendar.set(Calendar.MINUTE, assignment.getDueMin());
+        calendar.add(calendar.HOUR, -assignment.getNotifyHoursBefore());
+        Log.d("alarm", "setting alarm for " + calendar.get(GregorianCalendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR) +" " + calendar.get(Calendar.HOUR_OF_DAY) +":" + calendar.get(Calendar.MINUTE));
+
+        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
+
     }
 
 
@@ -354,6 +423,8 @@ public class PlannerFragment extends Fragment {
         intent.putExtra("day", currAssignment.getDueDay());
         intent.putExtra("month", currAssignment.getDueMonth());
         intent.putExtra("year", currAssignment.getDueYear());
+        intent.putExtra("notify", currAssignment.shouldNotify());
+        intent.putExtra("notifyHoursBefore", currAssignment.getNotifyHoursBefore());
         editAssignmentActivityResultLauncher.launch(intent);
     }
 
@@ -380,12 +451,29 @@ public class PlannerFragment extends Fragment {
             Toast toast = Toast.makeText(getContext(), "assignment deleted", Toast.LENGTH_SHORT);
             toast.show();
             todoListAdapter.assignmentDialogFragment.dialog.cancel();
+
+            deleteNotification(assignment);
         }
     }
 
     public void deleteAssignment(Assignment assignment) {
         DeleteAssignmentToDatabase databaseDelete = new DeleteAssignmentToDatabase();
         databaseDelete.execute(assignment);
+    }
+
+    public void deleteNotification(Assignment assignment) {
+        Intent notificationIntent = new Intent(getContext(), AlarmBroadcastReceiver.class);
+        notificationIntent.setAction(AlarmBroadcastReceiver.ACTION_ALARM_BROADCAST_RECEIVER);
+        notificationIntent.putExtra("name", assignment.getName());
+        notificationIntent.putExtra("hoursBefore", assignment.getNotifyHoursBefore());
+        notificationIntent.putExtra("id", assignment.getId());
+
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(), assignment.getId(), notificationIntent, PendingIntent.FLAG_MUTABLE);
+
+        AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(alarmIntent);
+        alarmIntent.cancel();
+
     }
 
 

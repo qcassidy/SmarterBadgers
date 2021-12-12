@@ -1,6 +1,5 @@
 package com.example.smarterbadgers;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -9,14 +8,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -32,10 +31,14 @@ public class EditAssignmentActivity extends AppCompatActivity {
     private int year;
     private int month;
     private int dayOfMonth;
+    private int notifyHour, notifyMinute;
+    private int notifyDay, notifyMonth, notifyYear;
     TextView nameTextView;
     TextView descTextView;
     TextView dateTextView;
     TextView timeTextView;
+    EditText hoursNotifyBeforeText;
+    CheckBox notifyCheckBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,8 @@ public class EditAssignmentActivity extends AppCompatActivity {
         int startYear = intent.getIntExtra("year", -1);
         int startMonth = intent.getIntExtra("month", -1);
         int startDay = intent.getIntExtra("day", -1);
+        boolean notify = intent.getBooleanExtra("notify", false);
+        int notifyHoursBefore = intent.getIntExtra("notifyHoursBefore", 0);
         year = startYear;
         month = startMonth;
         dayOfMonth = startDay;
@@ -83,6 +88,11 @@ public class EditAssignmentActivity extends AppCompatActivity {
         dateTextView = findViewById(R.id.EditAssignmentDateText);
         timeTextView = findViewById(R.id.EditAssignmentTimeText);
         Button button = findViewById(R.id.SaveEditAssignmentButton);
+        notifyCheckBox = findViewById(R.id.EditAssignmentNotificationCheckBox);
+        hoursNotifyBeforeText = findViewById(R.id.EditAssignmentHoursBeforeText);
+
+        notifyCheckBox.setChecked(notify);
+        hoursNotifyBeforeText.setText(String.valueOf(notifyHoursBefore));
 
         // update variables and  after time change
         timeTextView.setOnClickListener(new View.OnClickListener() {
@@ -198,6 +208,8 @@ public class EditAssignmentActivity extends AppCompatActivity {
         String newDesc = (String) descTextView.getText().toString();
         String newDate = (String) dateTextView.getText().toString();
         String newTime = (String) timeTextView.getText().toString();
+        boolean notify = notifyCheckBox.isChecked();
+        int notifyHoursBefore = Integer.parseInt(hoursNotifyBeforeText.getText().toString());
 
 
         Intent returnIntent = new Intent();
@@ -208,6 +220,8 @@ public class EditAssignmentActivity extends AppCompatActivity {
         returnIntent.putExtra("day", dayOfMonth);
         returnIntent.putExtra("hour", hour);
         returnIntent.putExtra("minute", minute);
+        returnIntent.putExtra("notify", notify);
+        returnIntent.putExtra("notifyHoursBefore", notifyHoursBefore);
         setResult(Activity.RESULT_OK, returnIntent);
 
         this.finish();

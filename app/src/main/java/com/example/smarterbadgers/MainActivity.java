@@ -1,8 +1,11 @@
 package com.example.smarterbadgers;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -27,6 +30,12 @@ public class MainActivity extends AppCompatActivity {
         // Until other fragments are added to the bottomnavFunction onNavigationItemSelected(),
         // this will crash the app if you choose anything other than Planner
         bottomNavBar.setOnItemSelectedListener(bottomnavFunction);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(PlannerFragment.ASSIGNMENT_NOTIFICATION_CHANNEL_ID, PlannerFragment.ASSIGNMENT_NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
 
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new TimerFragment()).commit();
     }
