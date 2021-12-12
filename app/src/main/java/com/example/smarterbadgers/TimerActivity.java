@@ -2,6 +2,7 @@ package com.example.smarterbadgers;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -120,4 +121,5 @@ public class TimerActivity extends AppCompatActivity {
         endBreakButton.setVisibility(View.INVISIBLE);
         startTimer();
     }
+
 }
