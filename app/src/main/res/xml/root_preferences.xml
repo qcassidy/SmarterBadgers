@@ -1,37 +1,40 @@
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
+        app:icon="@drawable/ic_baseline_notifications_24"
         app:title="Notification">
 
 
         <SwitchPreferenceCompat
-            app:title="New Notification Reminder"
-            app:summaryOn="Notifications are on"
+            app:key="notification"
             app:summaryOff="Notifications are off"
-            />
+            app:summaryOn="Notifications are on"
+            app:title="New Notification Reminder" />
 
     </PreferenceCategory>
 
 
-    <PreferenceCategory
-        app:title="Permissions">
-
-        <SwitchPreferenceCompat
-            app:title="Location Permissions"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:title="User Settings">
+    <PreferenceCategory app:title="User Settings"
+        app:icon="@drawable/ic_baseline_settings_24">
 
         <EditTextPreference
+            app:key="username"
+            app:title="Change Username"
+            app:useSimpleSummaryProvider="true" />
 
-            app:title="Username"
-            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="Permissions"
+        android:icon="@drawable/ic_baseline_lock_24">
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:title="Permission 1" />
+
+
 
     </PreferenceCategory>
 
-
-
+<Preference android:widgetLayout="@layout/fragment_profile"/>
 </PreferenceScreen>
