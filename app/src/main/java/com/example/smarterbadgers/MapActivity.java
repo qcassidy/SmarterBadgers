@@ -83,10 +83,11 @@ public class MapActivity extends FragmentActivity {
         backButton.setOnClickListener(this::goToTimer);
 
         libraries = findViewById(R.id.libraries);
-        libListAdapter = new ArrayAdapter<String>(this, R.layout.activity_map, R.id.libraries, libraryList);
+        libListAdapter = new ArrayAdapter<String>(this, R.layout.map_list_item, R.id.MapItemTextView, libraryList);
         libraries.setAdapter(libListAdapter);
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_map);
         mapFragment.getMapAsync(googleMap -> {
@@ -95,6 +96,8 @@ public class MapActivity extends FragmentActivity {
             //moveCamera();
             displayLibraries();
         });
+
+
     }
 
     //Get and display user's current location
