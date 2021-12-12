@@ -53,8 +53,6 @@ public class MapActivity extends FragmentActivity {
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12;
-    //private final int PROXIMITY_RADIUS = 40;
-    //private final String API_KEY = "AIzaSyAuO8edi3V3n93ZxeIdGJfFp80oRPIM39g";
     private Button backButton;
     private ListView libraries;
     private ArrayAdapter<String> libListAdapter;
@@ -99,7 +97,6 @@ public class MapActivity extends FragmentActivity {
             new LatLng(43.0659225, -89.4173755),
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,8 +117,6 @@ public class MapActivity extends FragmentActivity {
             displayMyLocation();
             displayLibraries();
         });
-
-
     }
 
     //Get and display user's current location
@@ -129,25 +124,23 @@ public class MapActivity extends FragmentActivity {
         int permission = ActivityCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-        if(permission == PackageManager.PERMISSION_DENIED) {
+        if (permission == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-        else {
+        } else {
             mFusedLocationProviderClient.getLastLocation()
                     .addOnCompleteListener(this, task -> {
                         Location mLastKnownLocation = task.getResult();
                         LatLng position = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                        LatLng test = new LatLng(43.076757, -89.4034447);
-                        if(task.isSuccessful() && mLastKnownLocation != null) {
+                        if (task.isSuccessful() && mLastKnownLocation != null) {
                             mMap.addMarker(new MarkerOptions()
-                                    .position(test)
+                                    .position(position)
                                     .title("Current Location")
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         }
                         moveCamera(mLastKnownLocation);
-                        getDistances(test);
+                        getDistances(position);
                     });
         }
     }
@@ -165,11 +158,10 @@ public class MapActivity extends FragmentActivity {
         libListAdapter.notifyDataSetChanged();
     }
 
-    //camera zooms to current location
+    //zoom camera to current location
     public void moveCamera(Location currLocation) {
         if (currLocation != null) {
-            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), 10));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.076757, -89.4034447), 15));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), 15));
         }
     }
 
@@ -196,38 +188,4 @@ public class MapActivity extends FragmentActivity {
     public void goToTimer(View view) {
         this.finish();
     }
-
-    /*
-    private void loadLibraries(double longitude, double latitude) {
-        Intent intent = getIntent();
-        String type = "library";
-
-        StringBuilder googlePlacesUrl =
-                new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlacesUrl.append("location=").append(latitude).append(",").append(longitude);
-        googlePlacesUrl.append("&radius=").append(PROXIMITY_RADIUS);
-        googlePlacesUrl.append("&types=").append(type);
-        googlePlacesUrl.append("&sensor=true");
-        googlePlacesUrl.append("&key=" + API_KEY);
-
-        JsonObjectRequest request = new JsonObjectRequest(googlePlacesUrl.toString(),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject result) {
-
-                        Log.i(TAG, "onResponse: Result= " + result.toString());
-                        parseLocationResult(result);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: Error= " + error);
-                        Log.e(TAG, "onErrorResponse: Error= " + error.getMessage());
-                    }
-                });
-
-        AppController.getInstance().addToRequestQueue(request);
-    }
-*/
 }
