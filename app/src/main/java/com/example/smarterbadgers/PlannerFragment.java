@@ -408,7 +408,8 @@ public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Lon
         Log.d("alarm", "setting alarm for " + calendar.get(GregorianCalendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR) +" " + calendar.get(Calendar.HOUR_OF_DAY) +":" + calendar.get(Calendar.MINUTE));
 
         AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
+        // subtract 500ms because the notifications seem to be sent at the very end of the minute
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() - 1000, alarmIntent);
 
     }
 

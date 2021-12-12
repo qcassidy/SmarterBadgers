@@ -15,6 +15,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
+    int breaks;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +37,16 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
+        breaks = 2;
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new TimerFragment()).commit();
+    }
+
+    public int getBreaks(){
+        return breaks;
+    }
+
+    public void setBreaks(int b) {
+        breaks = b;
     }
     private NavigationBarView.OnItemSelectedListener bottomnavFunction = new NavigationBarView.OnItemSelectedListener() {
         @Override

@@ -18,22 +18,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
@@ -53,6 +50,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     boolean onRunOfEmptyDays;
     boolean needLaterDays = false;
     boolean needEarlierDays = false;
+    RecyclerView recyclerView;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -63,6 +61,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         private final View view;
         private final NestedScrollView nestedScrollView;
         private final LinearLayout nestedLinearLayout;
+        private final LinearLayout dividerLinearLayout;
 
         public ViewHolder(View view) {
             super(view);
@@ -72,6 +71,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             textView = (TextView) view.findViewById(R.id.textView);
             nestedScrollView = (NestedScrollView) view.findViewById(R.id.todoListNestedScrollView);
             nestedLinearLayout = nestedScrollView.findViewById(R.id.NestedLinearLayout);
+            dividerLinearLayout = view.findViewById(R.id.WeekDividerLinearLayout);
         }
 
         public TextView getTextView() {
@@ -84,6 +84,10 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
         public LinearLayout getNestedLinearLayout() {
             return nestedLinearLayout;
+        }
+
+        public LinearLayout getDividerLinearLayout() {
+            return dividerLinearLayout;
         }
 
         public View getView() {
@@ -156,6 +160,11 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
     }
 
     public void updateDay(ArrayList<Integer[]> updatedDays) {
@@ -298,30 +307,9 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
 
 
-        ArrayList<Assignment> assignments = days.get(position).getAssignments();
+        Day currDay = days.get(position);
+        ArrayList<Assignment> assignments = currDay.getAssignments();
         NestedScrollView nestedScrollView = viewHolder.getNestedScrollView();
-        //Log.d("position", "" + position);
-        //PlannerActivity.logAssignments(assignments);
-
-/*        if (assignments.size() == 0) {
-            viewHolder.getTextView().setText("");
-            onRunOfEmptyDays = true;
-            latestRunOfEmptyDays.add(days.get(position));
-
-            if (position + 1 >= days.size() || days.get(position + 1).getAssignments().size() != 0) {
-                viewHolder.getTextView().setText(String.format(Locale.getDefault(), "%s - %s",
-                        days.get(0).toString(), days.get(days.size() - 1)));
-
-                onRunOfEmptyDays = false;
-
-                latestRunOfEmptyDays = new ArrayList<>();
-                return;
-            }
-
-            viewHolder.getNestedLinearLayout().removeAllViews();
-            return;
-        }*/
-
 
         viewHolder.getTextView().setText(days.get(position).toString());
         viewHolder.getNestedLinearLayout().removeAllViews();
@@ -351,24 +339,25 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                     LinearLayout.LayoutParams.WRAP_CONTENT)));
             linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-            TextView textView = new TextView(linearLayout.getContext());
-            textView.setText(assignment.toString());
-            textView.setGravity(Gravity.CENTER_HORIZONTAL);
-            textView.setLayoutParams((new LinearLayout.LayoutParams(
+            TextView assignmentNameTextView = new TextView(linearLayout.getContext());
+            assignmentNameTextView.setText("\t\t\t\t\t\t\t\t\t\t\t\t\u2022 " + assignment.toString());
+            //textView.setGravity(Gravity.CENTER_HORIZONTAL);
+            assignmentNameTextView.setLayoutParams((new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT)));
 
+
             // strike through text if assignment is completed
-            textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
             if (assignment.getCompleted()) {
-                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
 
-            linearLayout.addView(textView);
+            linearLayout.addView(assignmentNameTextView);
 
 
             // go to edit or delete dialog
-            textView.setOnLongClickListener(new View.OnLongClickListener() {
+            assignmentNameTextView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     FragmentManager childFragmentManager = plannerFragment.getChildFragmentManager();
@@ -415,20 +404,20 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
             final boolean[] expanded = {false};
             // change background color on touch
-            textView.setOnTouchListener(new View.OnTouchListener() {
+            assignmentNameTextView.setOnTouchListener(new View.OnTouchListener() {
                 @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
-                        textView.setBackgroundColor(Color.LTGRAY);
+                        assignmentNameTextView.setBackgroundColor(Color.LTGRAY);
                         return false;
                     } else {
                         if (MotionEvent.ACTION_UP == motionEvent.getAction())  {
-                            textView.setBackgroundColor(Color.WHITE);
+                            assignmentNameTextView.setBackgroundColor(Color.WHITE);
                         } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
                             //textView.setBackgroundColor(Color.WHITE);
                         } else if (MotionEvent.ACTION_CANCEL == motionEvent.getAction()) {
-                            textView.setBackgroundColor(Color.WHITE);
+                            assignmentNameTextView.setBackgroundColor(Color.WHITE);
                         }
                         return false;
                     }
@@ -436,18 +425,18 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             });
 
             if (assignment.getExpanded()) {
-                expandAssignment(assignment, linearLayout, textView);
+                expandAssignment(assignment, linearLayout, assignmentNameTextView, currDay.getDayOfWeek());
             }
 
-            textView.setOnClickListener(new View.OnClickListener() {
+            assignmentNameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (!assignment.getExpanded()) {
-                        expandAssignment(assignment, linearLayout, textView);
+                        expandAssignment(assignment, linearLayout, assignmentNameTextView, currDay.getDayOfWeek());
                     }
                     else {
                         linearLayout.removeAllViews();
-                        linearLayout.addView(textView);
+                        linearLayout.addView(assignmentNameTextView);
                         assignment.toggleExpanded();
                     }
 
@@ -460,6 +449,28 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
 
             viewHolder.getNestedLinearLayout().addView(linearLayout);
         }
+
+        LinearLayout dLinearLayout = viewHolder.getDividerLinearLayout();
+        if (currDay.getDayOfWeek() == 6) {
+            dLinearLayout.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            dLinearLayout.setVisibility(View.VISIBLE);
+            TextView weekRangeText = dLinearLayout.findViewById(R.id.WeekDividerMiddleText);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(currDay.getCalendar().getTimeInMillis());
+            String firstDate = (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR);
+            calendar.add(Calendar.DAY_OF_YEAR, 6);
+            String secondDate = String.format(Locale.getDefault(), "%d/%d/%d", calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR));
+
+            weekRangeText.setText(String.format(Locale.getDefault(), "%s - %s", firstDate, secondDate));
+        }
+        else {
+            dLinearLayout.setVisibility(View.GONE);
+            dLinearLayout.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+        }
+
+
+        //viewHolder.getNestedLinearLayout().addView(linearLayout);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -468,7 +479,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         return days.size();
     }
 
-    public void expandAssignment(Assignment assignment, LinearLayout linearLayout, TextView assignmentNameTextView) {
+    public void expandAssignment(Assignment assignment, LinearLayout linearLayout, TextView assignmentNameTextView, int dayOfWeek) {
 
         // desc text view
         TextView assignmentDescText = new TextView(linearLayout.getContext());
@@ -546,6 +557,8 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         linearLayout.addView(assignmentDueTimeText);
         linearLayout.addView(completeButton);
 
+        if (dayOfWeek == 6) {
+        }
 
         assignmentNameTextView.setBackgroundColor(Color.LTGRAY);
         assignment.toggleExpanded();
