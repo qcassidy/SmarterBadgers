@@ -38,7 +38,7 @@ public class TimerFragment extends Fragment {
     private CountDownTimer countDownTimer;
     private long timeLeftMilliseconds = 600000;
     private long timeLeftBreakMilliseconds = 300000;
-    private int breaksRemaining = 0;
+    private int breaksRemaining;
     private int secStudied = 0;
 
 
@@ -64,7 +64,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        breaksRemaining = 2;
+        breaksRemaining = ((MainActivity)getActivity()).getBreaks();
 
     }
 
@@ -101,7 +101,9 @@ public class TimerFragment extends Fragment {
         startButton.setVisibility(View.INVISIBLE);
         libraryButton.setVisibility(View.INVISIBLE);
         stopButton.setVisibility(View.VISIBLE);
-        breakButton.setVisibility(View.VISIBLE);
+        if(breaksRemaining > 0) {
+            breakButton.setVisibility(View.VISIBLE);
+        }
         timeLeftMilliseconds = (long)(Integer.parseInt(editTextNumber.getText().toString())) * 60000;
         int min = (int) timeLeftMilliseconds/1000 /60;
         int sec = (int) timeLeftMilliseconds/1000 %60;
@@ -137,7 +139,7 @@ public class TimerFragment extends Fragment {
                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers",Context.MODE_PRIVATE);
                 int sharedint = sharedPreferences.getInt("timestudied", 0);
                 sharedint += (secStudied/60);
-                secStudied = 0;
+                secStudied %= 60;
                 sharedPreferences.edit().putInt("timestudied",sharedint).apply();
             }
         }.start();
@@ -170,7 +172,7 @@ public class TimerFragment extends Fragment {
                         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers",Context.MODE_PRIVATE);
                         int sharedint = sharedPreferences.getInt("timestudied", 0);
                         sharedint += (secStudied/60);
-                        secStudied = 0;
+                        secStudied %= 60;
                         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
                     }
                 });
@@ -184,6 +186,7 @@ public class TimerFragment extends Fragment {
             return;
         }
         breaksRemaining --;
+        ((MainActivity)getActivity()).setBreaks(breaksRemaining);
         breakButton.setText(String.format("Breaks Remaining: %d",breaksRemaining));
         countDownTimer.cancel();
         breakButton.setVisibility(View.INVISIBLE);
@@ -214,7 +217,9 @@ public class TimerFragment extends Fragment {
     public void endBreakOnClick(View view) {
         countDownTimer.cancel();
         timeLeftBreakMilliseconds = 300000;
-        breakButton.setVisibility(View.VISIBLE);
+        if (breaksRemaining > 0) {
+            breakButton.setVisibility(View.VISIBLE);
+        }
         stopButton.setVisibility(View.VISIBLE);
         endBreakButton.setVisibility(View.INVISIBLE);
         startTimer();
@@ -225,7 +230,7 @@ public class TimerFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers",Context.MODE_PRIVATE);
         int sharedint = sharedPreferences.getInt("timestudied", 0);
         sharedint += (secStudied/60);
-        secStudied = 0;
+        secStudied %= 60;
         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
         super.onStop();
     }
