@@ -138,7 +138,6 @@ public class TimerFragment extends Fragment {
                 int sharedint = sharedPreferences.getInt("timestudied", 0);
                 sharedint += (secStudied/60);
                 secStudied = 0;
-                Log.i("test", String.valueOf(sharedint));
                 sharedPreferences.edit().putInt("timestudied",sharedint).apply();
             }
         }.start();
@@ -172,7 +171,6 @@ public class TimerFragment extends Fragment {
                         int sharedint = sharedPreferences.getInt("timestudied", 0);
                         sharedint += (secStudied/60);
                         secStudied = 0;
-                        Log.i("test", String.valueOf(sharedint));
                         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
                     }
                 });
@@ -228,7 +226,6 @@ public class TimerFragment extends Fragment {
         int sharedint = sharedPreferences.getInt("timestudied", 0);
         sharedint += (secStudied/60);
         secStudied = 0;
-        Log.i("test", String.valueOf(sharedint));
         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
         super.onStop();
     }
