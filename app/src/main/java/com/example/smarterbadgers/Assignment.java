@@ -18,6 +18,8 @@ public class Assignment {
     private int dueDayOfYear;
     private int id;
     private int oldDueYear, oldDueMonth, oldDueDay;
+    boolean notify;
+    private int notifyHoursBefore;
     private boolean completed;
     private boolean hidden;
     private boolean expanded;
@@ -235,5 +237,21 @@ public class Assignment {
 
     public int getOldDueDay() {
         return oldDueDay;
+    }
+
+    public boolean shouldNotify() {
+        return notify;
+    }
+
+    public void setNotify(boolean notify) {
+        this.notify = notify;
+    }
+
+    public int getNotifyHoursBefore() {
+        return notifyHoursBefore;
+    }
+
+    public void setNotifyHoursBefore(int hours) {
+        this.notifyHoursBefore = hours;
     }
 }

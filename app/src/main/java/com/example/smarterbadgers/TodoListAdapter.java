@@ -159,7 +159,6 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
     }
 
     public void updateDay(ArrayList<Integer[]> updatedDays) {
-        // todo account for days that are not currently in the recyclerview, add new days
         for (int i = 0; i < updatedDays.size(); i++) {
             Integer[] mdy = updatedDays.get(i);
             Calendar calendar = Calendar.getInstance();
@@ -168,24 +167,6 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             calendar.set(Calendar.MONTH, mdy[0]);
             int position = getPositionOfDate(new int[] {calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.YEAR)});
 
-            // handle the case where a new date is added earlier than the earliest year on the todoList
-            int yearDifference = mdy[2] - minYear;
-            if (yearDifference < 0) {
-                ArrayList<Day> earlierDays = dbHelper.getAssignmentsFromYearRange(minYear + yearDifference, minYear - 1);
-                days.addAll(0, earlierDays);
-                this.notifyItemRangeInserted(0, earlierDays.size());
-                minYear += yearDifference;
-            }
-
-            // handle the case where a new date is added later than the latest year on the todolist
-            int yearDifferenceMax = mdy[2] - maxYear;
-            if (yearDifferenceMax > 0) {
-                int prevDaysSize = days.size();
-                ArrayList<Day> laterDays = dbHelper.getAssignmentsFromYearRange(maxYear + 1, mdy[2]);
-                days.addAll(laterDays);
-                this.notifyItemRangeInserted(prevDaysSize, laterDays.size());
-                maxYear += yearDifferenceMax;
-            }
 
             Day currDay = days.get(position);
 
@@ -208,16 +189,35 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         calendar.set(Calendar.DAY_OF_MONTH, mdy[1]);
         calendar.set(Calendar.MONTH, mdy[0]);
 
+        // handle the case where a new date is added earlier than the earliest year on the todoList
+        int yearDifference = mdy[2] - minYear;
+        if (yearDifference < 0) {
+            ArrayList<Day> earlierDays = dbHelper.getAssignmentsFromYearRange(minYear + yearDifference, minYear - 1);
+            days.addAll(0, earlierDays);
+            this.notifyItemRangeInserted(0, earlierDays.size());
+            minYear += yearDifference;
+        }
+
+        // handle the case where a new date is added later than the latest year on the todolist
+        int yearDifferenceMax = mdy[2] - maxYear;
+        if (yearDifferenceMax > 0) {
+            int prevDaysSize = days.size();
+            ArrayList<Day> laterDays = dbHelper.getAssignmentsFromYearRange(maxYear + 1, mdy[2]);
+            days.addAll(laterDays);
+            this.notifyItemRangeInserted(prevDaysSize, laterDays.size());
+            maxYear += yearDifferenceMax;
+        }
+
         int offset = 0;
         for (int j = 0; j < mdy[2] - minYear; j++) {
             if (mdy[2] - minYear < 0) {
-                return -1;
+                Log.d("position of date", "min year is greater than year of date. Something went wrong.");
             }
             offset += DBHelper.getNumberOfDaysInYear(minYear + j);
         }
         int position = offset + calendar.get(Calendar.DAY_OF_YEAR) - 1;
 
-        Log.d("getPosition", "position: " + position + " " + mdy[0] + "/" + mdy[1] + "/" + mdy[2]);
+        Log.d("getPosition", "position: " + position + " " + mdy[0] + "/" + mdy[1] + "/" + mdy[2] + " " + days.get(position));
         return position;
     }
 

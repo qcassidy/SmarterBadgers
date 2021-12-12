@@ -14,13 +14,13 @@
         android:id="@+id/saveAssignmentButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="28dp"
         android:onClick="saveAssignmentButtonOnClick"
         android:text="save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/assignmentDescEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/NotificationDateLinearLayout" />
 
     <EditText
         android:id="@+id/assignmentDescEditText"
@@ -47,5 +47,43 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/NotificationDateLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="230dp"
+        android:layout_marginBottom="41dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/saveAssignmentButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <CheckBox
+            android:id="@+id/CreateAssignmentNotificationCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Notification" />
+
+        <EditText
+            android:id="@+id/CreateAssignmentNotificationHoursText"
+            android:layout_width="2dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/HoursBeforeNotificationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="hours before due date" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
