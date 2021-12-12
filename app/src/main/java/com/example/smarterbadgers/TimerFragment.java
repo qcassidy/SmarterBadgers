@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
@@ -82,6 +83,7 @@ public class TimerFragment extends Fragment {
 
         libraryButton = view.findViewById(R.id.libraryButton);
         libraryButton.setOnClickListener(this::goToMap);
+
         enterMinTextView = view.findViewById(R.id.enterMinutes);
         editTextNumber = view.findViewById(R.id.editTextNumber);
 

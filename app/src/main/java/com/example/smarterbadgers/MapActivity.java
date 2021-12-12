@@ -1,8 +1,11 @@
 package com.example.smarterbadgers;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,14 +15,24 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.api.Response;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -30,18 +43,48 @@ import com.google.firebase.firestore.util.Listener;
 
 import org.json.JSONObject;
 
-public class MapActivity extends AppCompatActivity {
+
+public class MapActivity extends FragmentActivity {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12;
     private final int PROXIMITY_RADIUS = 40;
     private final String API_KEY = "AIzaSyAuO8edi3V3n93ZxeIdGJfFp80oRPIM39g";
+    private Button backButton;
+    private ListView libraries;
+    private ArrayAdapter<String> libListAdapter;
+    private String[] libraryList = {"College Library",
+            "Memorial Library",
+            "Arthur H Robinson Map Library",
+            "Information School Library",
+            "Kohler Art Library",
+            "Steenbock Memorial Library",
+            "Social Work Library",
+            "Law School Library",
+            "Digital Collections Center",
+            "Mills Music Library",
+            "Nieman Grant Journalism Room",
+            "Astronomy, Mathematics, and Physics Library",
+            "Center for Demography Library",
+            "Plant Pathology Library",
+            "Madison Public Library - Central",
+            "Wisconsin State Law Library",
+            "Public Instruction Library",
+            "Madison Public Library - Monroe Street"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(this::goToTimer);
+
+        libraries = findViewById(R.id.libraries);
+        libListAdapter = new ArrayAdapter<String>(this, R.layout.activity_map, R.id.libraries, libraryList);
+        libraries.setAdapter(libListAdapter);
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -49,6 +92,7 @@ public class MapActivity extends AppCompatActivity {
         mapFragment.getMapAsync(googleMap -> {
             mMap = googleMap;
             displayMyLocation();
+            //moveCamera();
             displayLibraries();
         });
     }
@@ -76,10 +120,17 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    public void moveCamera() {
+        if (mLastKnownLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), 5));
+        }
+    }*/
+
     //coords of libraries in madison, displays markers
     private void displayLibraries() {
         LatLng collegeLibrary = new LatLng(43.076757, -89.4034447);
-        LatLng memorialLibrary = new LatLng(43.075434, -89.4000557);
+        LatLng memorialLibrary = new LatLng(43.0745924, -89.4015308);
         LatLng mapLibrary = new LatLng(43.076047, -89.4032047);
         LatLng infoLibrary = new LatLng(43.0761127, -89.4019648);
         LatLng artLibrary = new LatLng(43.0739918, -89.4016058);
@@ -118,9 +169,6 @@ public class MapActivity extends AppCompatActivity {
         mMap.addMarker(new MarkerOptions()
                 .position(socialWorkLibrary)
                 .title("Social Work Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(lawLibrary)
-                .title("Law School Library"));
         mMap.addMarker(new MarkerOptions()
                 .position(lawLibrary)
                 .title("Law School Library"));
@@ -168,6 +216,12 @@ public class MapActivity extends AppCompatActivity {
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
+
+    public void goToTimer(View view) {
+        Intent intent = new Intent(this, TimerFragment.class);
+        startActivity(intent);
+    }
+
     /*
     private void loadLibraries(double longitude, double latitude) {
         Intent intent = getIntent();
@@ -201,5 +255,4 @@ public class MapActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(request);
     }
 */
-
 }
