@@ -37,11 +37,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.util.Listener;
+import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 
 
 public class MapActivity extends FragmentActivity {
@@ -49,8 +53,8 @@ public class MapActivity extends FragmentActivity {
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12;
-    private final int PROXIMITY_RADIUS = 40;
-    private final String API_KEY = "AIzaSyAuO8edi3V3n93ZxeIdGJfFp80oRPIM39g";
+    //private final int PROXIMITY_RADIUS = 40;
+    //private final String API_KEY = "AIzaSyAuO8edi3V3n93ZxeIdGJfFp80oRPIM39g";
     private Button backButton;
     private ListView libraries;
     private ArrayAdapter<String> libListAdapter;
@@ -73,6 +77,28 @@ public class MapActivity extends FragmentActivity {
             "Public Instruction Library",
             "Madison Public Library - Monroe Street"};
 
+    //coordinates of libraries
+    LatLng[] libraryCoords = {
+            new LatLng(43.076757, -89.4034447),
+            new LatLng(43.0745924, -89.4015308),
+            new LatLng(43.076047, -89.4032047),
+            new LatLng(43.0761127, -89.4019648),
+            new LatLng(43.0739918, -89.4016058),
+            new LatLng(43.0762592, -89.4152843),
+            new LatLng(43.0742468, -89.4103867),
+            new LatLng(43.074423, -89.4043027),
+            new LatLng(43.0753703, -89.4000274),
+            new LatLng(43.0754199, -89.4002731),
+            new LatLng(43.0726553, -89.4021646),
+            new LatLng(43.0738501, -89.40765),
+            new LatLng(43.0765915, -89.4074134),
+            new LatLng(43.0755446, -89.4157191),
+            new LatLng(43.073458, -89.3895041),
+            new LatLng(43.0730785, -89.3847733),
+            new LatLng(43.0750216, -89.3820162),
+            new LatLng(43.0659225, -89.4173755),
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +114,10 @@ public class MapActivity extends FragmentActivity {
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_map);
         mapFragment.getMapAsync(googleMap -> {
             mMap = googleMap;
             displayMyLocation();
-            //moveCamera();
             displayLibraries();
         });
 
@@ -114,100 +138,48 @@ public class MapActivity extends FragmentActivity {
             mFusedLocationProviderClient.getLastLocation()
                     .addOnCompleteListener(this, task -> {
                         Location mLastKnownLocation = task.getResult();
+                        LatLng position = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                        LatLng test = new LatLng(43.076757, -89.4034447);
                         if(task.isSuccessful() && mLastKnownLocation != null) {
                             mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()))
-                                    .title("Current Location"));
+                                    .position(test)
+                                    .title("Current Location")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         }
+                        moveCamera(mLastKnownLocation);
+                        getDistances(test);
                     });
         }
     }
 
-    /*
-    public void moveCamera() {
-        if (mLastKnownLocation != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), 5));
+    //get distance in miles from currLocation to every library
+    private void getDistances(LatLng currPosition) {
+        double distanceBetween = 0.0;
+
+        for (int i = 0; i < libraryCoords.length; i++) {
+            distanceBetween = SphericalUtil.computeDistanceBetween(currPosition, libraryCoords[i]);
+            distanceBetween *= 0.000621371;
+            String distance = String.format("%.2f", distanceBetween);
+            libraryList[i] = libraryList[i] + ": " + distance + " mi";
         }
-    }*/
+        libListAdapter.notifyDataSetChanged();
+    }
+
+    //camera zooms to current location
+    public void moveCamera(Location currLocation) {
+        if (currLocation != null) {
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), 10));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.076757, -89.4034447), 15));
+        }
+    }
 
     //coords of libraries in madison, displays markers
     private void displayLibraries() {
-        LatLng collegeLibrary = new LatLng(43.076757, -89.4034447);
-        LatLng memorialLibrary = new LatLng(43.0745924, -89.4015308);
-        LatLng mapLibrary = new LatLng(43.076047, -89.4032047);
-        LatLng infoLibrary = new LatLng(43.0761127, -89.4019648);
-        LatLng artLibrary = new LatLng(43.0739918, -89.4016058);
-        LatLng steenbockLibrary = new LatLng(43.0762592, -89.4152843);
-        LatLng socialWorkLibrary = new LatLng(43.0742468, -89.4103867);
-        LatLng lawLibrary = new LatLng(43.074423, -89.4043027);
-        LatLng digitalLibrary = new LatLng(43.0753703, -89.4000274);
-        LatLng musicLibrary = new LatLng(43.0754199, -89.4002731);
-        LatLng journalismLibrary = new LatLng(43.0726553, -89.4021646);
-        LatLng ampLibrary = new LatLng(43.0738501, -89.40765);
-        LatLng demographyLibrary = new LatLng(43.0765915, -89.4074134);
-        LatLng plantLibrary = new LatLng(43.0755446, -89.4157191);
-        LatLng centralLibrary = new LatLng(43.073458, -89.3895041);
-        LatLng stateLawLibrary = new LatLng(43.0730785, -89.3847733);
-        LatLng instructionLibrary = new LatLng(43.0750216, -89.3820162);
-        LatLng monroeLibrary = new LatLng(43.0659225, -89.4173755);
-
-        mMap.addMarker(new MarkerOptions()
-                .position(collegeLibrary)
-                .title("College Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(memorialLibrary)
-                .title("Memorial Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(mapLibrary)
-                .title("Arthur H Robinson Map Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(infoLibrary)
-                .title("Information School Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(artLibrary)
-                .title("Kohler Art Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(steenbockLibrary)
-                .title("Steenbock Memorial Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(socialWorkLibrary)
-                .title("Social Work Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(lawLibrary)
-                .title("Law School Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(digitalLibrary)
-                .title("Digital Collections Center"));
-        mMap.addMarker(new MarkerOptions()
-                .position(musicLibrary)
-                .title("Mills Music Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(journalismLibrary)
-                .title("Nieman Grant Journalism Room"));
-        mMap.addMarker(new MarkerOptions()
-                .position(ampLibrary)
-                .title("Astronomy, Mathematics, and Physics Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(demographyLibrary)
-                .title("Center For Demography Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(plantLibrary)
-                .title("Plant Pathology Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(plantLibrary)
-                .title("Plant Pathology Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(centralLibrary)
-                .title("Madison Public Library - Central"));
-        mMap.addMarker(new MarkerOptions()
-                .position(stateLawLibrary)
-                .title("Wisconsin State Law Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(instructionLibrary)
-                .title("Public Instruction Pro Library"));
-        mMap.addMarker(new MarkerOptions()
-                .position(monroeLibrary)
-                .title("Madison Public Library - Monroe Street"));
+        for (int i = 0; i < libraryList.length; i++) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(libraryCoords[i])
+                    .title(libraryList[i]));
+        }
     }
 
     //change drawable vector to bitmap for marker icon
@@ -220,10 +192,9 @@ public class MapActivity extends FragmentActivity {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    // back button functionality
     public void goToTimer(View view) {
         this.finish();
-        //Intent intent = new Intent(this, TimerFragment.class);
-        //startActivity(intent);
     }
 
     /*
