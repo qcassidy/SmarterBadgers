@@ -221,8 +221,9 @@ public class MapActivity extends FragmentActivity {
     }
 
     public void goToTimer(View view) {
-        Intent intent = new Intent(this, TimerFragment.class);
-        startActivity(intent);
+        this.finish();
+        //Intent intent = new Intent(this, TimerFragment.class);
+        //startActivity(intent);
     }
 
     /*
