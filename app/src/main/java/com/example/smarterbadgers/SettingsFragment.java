@@ -25,14 +25,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static String usernameKey;
     public static String userString = "Badger";
     TextView username;
-    SQLiteDatabase sqLiteDatabase;//= getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
-    private DBHelper notificationHelper; // = new DBHelper(sqLiteDatabase);
+//    SQLiteDatabase sqLiteDatabase;//= getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+//    private DBHelper notificationHelper; // = new DBHelper(sqLiteDatabase);
 
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
-        notificationHelper = new DBHelper(sqLiteDatabase);
+//        sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+//        notificationHelper = new DBHelper(sqLiteDatabase);
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         usernameKey = "username";
@@ -49,18 +49,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         sharedPreferences.edit().putString("username", userString).apply();
         Log.i("this is the username", userString);
 
-        ArrayList<Integer> notifID = notificationHelper.getAssignmentNotificationIDs();
+        //ArrayList<Integer> notifID = notificationHelper.getAssignmentNotificationIDs();
 
 
 
 
     }
 
-    SwitchPreferenceCompat notifToggle = (SwitchPreferenceCompat) findPreference("notification");
-
-    public SwitchPreferenceCompat getNotifToggle() {
-        return notifToggle;
-    }
+//    SwitchPreferenceCompat notifToggle = (SwitchPreferenceCompat) findPreference("notification");
+//
+//    public SwitchPreferenceCompat getNotifToggle() {
+//        return notifToggle;
+//    }
 //    notifToggle.setOnCheckedChangeListener
 //    notifToggle
 
