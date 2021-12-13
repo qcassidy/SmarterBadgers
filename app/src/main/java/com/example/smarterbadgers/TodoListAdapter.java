@@ -352,6 +352,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
             if (assignment.getCompleted()) {
                 assignmentNameTextView.setPaintFlags(assignmentNameTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
+            assignmentNameTextView.setTextSize(16);
 
             linearLayout.addView(assignmentNameTextView);
 

@@ -25,7 +25,7 @@ public class DBHelper {
 
     public void createTable() {
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS assignments (id INTEGER PRIMARY KEY, name TEXT, dueDate TEXT, dueTime TEXT, description TEXT, " +
-                "dueYear INT, dueMonth INT, dueDay INT, dueHour INT, dueMin INT, dueDayOfYear INT, completed INT, hidden INT)");
+                "dueYear INT, dueMonth INT, dueDay INT, dueHour INT, dueMin INT, dueDayOfYear INT, completed INT, hidden INT, notifyHoursBefore INT)");
     }
 
     public void closeTable() {
@@ -42,6 +42,7 @@ public class DBHelper {
         int idIndex = c.getColumnIndex("id");
         int completedIndex = c.getColumnIndex("completed");
         int hiddenIndex = c.getColumnIndex("hidden");
+        int notifyHoursBeforeIndex = c.getColumnIndex("notifyHoursBefore");
 
         c.moveToFirst();
 
@@ -56,11 +57,13 @@ public class DBHelper {
             int id = Integer.parseInt(c.getString(idIndex));
             int completed = Integer.parseInt(c.getString(completedIndex));
             int hidden = Integer.parseInt(c.getString(hiddenIndex));
+            int notifyHoursBefore = Integer.parseInt(c.getString(notifyHoursBeforeIndex));
 
             Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             currAssignment.setCompleted(completed == 1);
             currAssignment.setHidden(hidden == 1);
             assignmentsList.add(currAssignment);
+            currAssignment.setNotifyHoursBefore(notifyHoursBefore);
             c.moveToNext();
         }
         c.close();
@@ -79,6 +82,7 @@ public class DBHelper {
         int descriptionIndex = c.getColumnIndex("description");
         int completedIndex = c.getColumnIndex("completed");
         int hiddenIndex = c.getColumnIndex("hidden");
+        int notifyHoursBeforeIndex = c.getColumnIndex("notifyHoursBefore");
 
         c.moveToFirst();
 
@@ -93,11 +97,13 @@ public class DBHelper {
             int id = Integer.parseInt(c.getString(idIndex));
             int completed = Integer.parseInt(c.getString(completedIndex));
             int hidden = Integer.parseInt(c.getString(hiddenIndex));
+            int notifyHoursBefore = Integer.parseInt(c.getString(notifyHoursBeforeIndex));
 
             Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             assignmentsList.add(currAssignment);
             currAssignment.setCompleted(completed == 1);
             currAssignment.setHidden(hidden == 1);
+            currAssignment.setNotifyHoursBefore(notifyHoursBefore);
             Log.d("assignment", "found assignment " + id + " " + currAssignment.getName());
             c.moveToNext();
         }
@@ -164,6 +170,7 @@ public class DBHelper {
         int dueYearIndex = c.getColumnIndex("dueYear");
         int completedIndex = c.getColumnIndex("completed");
         int hiddenIndex = c.getColumnIndex("hidden");
+        int notifyHoursBeforeIndex = c.getColumnIndex("notifyHoursBefore");
 
         c.moveToFirst();
         int dayOfYearOffset = 0;
@@ -180,6 +187,7 @@ public class DBHelper {
             int dueYear = Integer.parseInt(c.getString(dueYearIndex));
             int completed = Integer.parseInt(c.getString(completedIndex));
             int hidden = Integer.parseInt(c.getString(hiddenIndex));
+            int notifyHoursBefore = Integer.parseInt(c.getString(notifyHoursBeforeIndex));
 
             if (dueYear != previousYear) {
                 dayOfYearOffset += getNumberOfDaysInYear(previousYear);
@@ -189,6 +197,7 @@ public class DBHelper {
             Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             currAssignment.setCompleted(completed == 1);
             currAssignment.setHidden(hidden == 1);
+            currAssignment.setNotifyHoursBefore(notifyHoursBefore);
 
             //Log.d("assignment", String.format("adding %s (%s) to %s", name, dueDate, days.get(dueDayOfYear + dayOfYearOffset)));
             //Log.d("assignment", "dueDayOfYear: " + dueDayOfYear);
@@ -215,6 +224,7 @@ public class DBHelper {
         int dueDayOfYearIndex = c.getColumnIndex("dueDayOfYear");
         int completedIndex = c.getColumnIndex("completed");
         int hiddenIndex = c.getColumnIndex("hidden");
+        int notifyHoursBeforeIndex = c.getColumnIndex("notifyHoursBefore");
 
         c.moveToFirst();
 
@@ -242,10 +252,12 @@ public class DBHelper {
             int id = Integer.parseInt(c.getString(idIndex));
             int completed = Integer.parseInt(c.getString(completedIndex));
             int hidden = Integer.parseInt(c.getString(hiddenIndex));
+            int notifyHoursBefore = Integer.parseInt(c.getString(notifyHoursBeforeIndex));
 
             Assignment currAssignment = new Assignment(name, dueDate, dueTime, description, id);
             currAssignment.setCompleted(completed == 1);
             currAssignment.setHidden(hidden == 1);
+            currAssignment.setNotifyHoursBefore(notifyHoursBefore);
 
             //Log.d("assignment", String.format("adding %s (%s) to %s", name, dueDate, days.get(dueDayOfYear)));
             //Log.d("assignment", "dueDayOfYear: " + dueDayOfYear);
@@ -258,15 +270,31 @@ public class DBHelper {
         return days;
     }
 
+    public ArrayList<Integer> getAssignmentNotificationIDs() {
+        Cursor c = sqLiteDatabase.rawQuery(String.format(Locale.getDefault(), "SELECT * from assignments WHERE assignments.notifyHoursBefore != -1"), null);
+
+        int idIndex = c.getColumnIndex("id");
+
+        ArrayList<Integer> ids = new ArrayList<>();
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            int id = Integer.parseInt(c.getString(idIndex));
+            ids.add(id);
+            c.moveToNext();
+        }
+
+        return ids;
+    }
+
     public void saveAssignment(Assignment currAssignment) {
         // TODO deal with apostrophes and other potential breaking characters
 
         DatabaseUtils.sqlEscapeString(currAssignment.getName());
-        sqLiteDatabase.execSQL(String.format(Locale.getDefault(),"INSERT INTO assignments (name, dueDate, dueTime, description, dueYear, dueMonth, dueDay, dueHour, dueMin, dueDayOfYear, completed, hidden)" +
-                        " VALUES (%s, '%s', '%s', %s, '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
+        sqLiteDatabase.execSQL(String.format(Locale.getDefault(),"INSERT INTO assignments (name, dueDate, dueTime, description, dueYear, dueMonth, dueDay, dueHour, dueMin, dueDayOfYear, completed, hidden, notifyHoursBefore)" +
+                        " VALUES (%s, '%s', '%s', %s, '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
                 DatabaseUtils.sqlEscapeString(currAssignment.getName()), currAssignment.getDueDate(), currAssignment.getDueTime(), DatabaseUtils.sqlEscapeString(currAssignment.getDescription()),
                 currAssignment.getDueYear(), currAssignment.getDueMonth(), currAssignment.getDueDay(), currAssignment.getDueHour(),
-                currAssignment.getDueMin(), currAssignment.getDueDayOfYear(), currAssignment.getCompleted() ? 1:0, currAssignment.getHidden() ? 1:0));
+                currAssignment.getDueMin(), currAssignment.getDueDayOfYear(), currAssignment.getCompleted() ? 1:0, currAssignment.getHidden() ? 1:0, currAssignment.getNotifyHoursBefore()));
 
         // get and set id
         Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM assignments ORDER BY id DESC LIMIT 1", null);
@@ -277,11 +305,11 @@ public class DBHelper {
 
     public void updateAssignment(Assignment currAssignment) {
         sqLiteDatabase.execSQL(String.format(Locale.getDefault(), "UPDATE assignments set name = %s, dueDate = '%s', dueTime = '%s', description = %s"
-                         + ", dueYear = '%s', dueMonth = '%d', dueDay = '%d', dueHour = '%d', dueMin = '%d', dueDayOfYear = '%d', completed = '%d', hidden = '%d'"
+                         + ", dueYear = '%s', dueMonth = '%d', dueDay = '%d', dueHour = '%d', dueMin = '%d', dueDayOfYear = '%d', completed = '%d', hidden = '%d', notifyHoursBefore = '%d'"
                          + " where id = '%d'",
                 DatabaseUtils.sqlEscapeString( currAssignment.getName() ), currAssignment.getDueDate(), currAssignment.getDueTime(),DatabaseUtils.sqlEscapeString( currAssignment.getDescription() ), currAssignment.getDueYear(),
                 currAssignment.getDueMonth(), currAssignment.getDueDay(), currAssignment.getDueHour(), currAssignment.getDueMin(), currAssignment.getDueDayOfYear(), currAssignment.getCompleted() ? 1:0, currAssignment.getHidden() ? 1:0,
-                currAssignment.getId()));
+                currAssignment.getNotifyHoursBefore(), currAssignment.getId()));
 
     }
 
