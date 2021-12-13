@@ -21,6 +21,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -96,6 +97,7 @@ public class MapActivity extends FragmentActivity {
             new LatLng(43.0750216, -89.3820162),
             new LatLng(43.0659225, -89.4173755),
     };
+    private Marker[] markerList = new Marker[libraryList.length];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,17 @@ public class MapActivity extends FragmentActivity {
         libraries = findViewById(R.id.libraries);
         libListAdapter = new ArrayAdapter<String>(this, R.layout.map_list_item, R.id.MapItemTextView, libraryList);
         libraries.setAdapter(libListAdapter);
+
+        libraries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adaptderView, View v, int position, long arg) {
+                //code to be written to handle the click event
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(libraryCoords[position], 15));
+                markerList[position].showInfoWindow();
+            }
+        });
+
+
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -162,26 +175,31 @@ public class MapActivity extends FragmentActivity {
     public void moveCamera(Location currLocation) {
         if (currLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()), 15));
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+                    LatLng position = marker.getPosition();
+                    int pos = 0;
+                    for (int i =0; i < libraryCoords.length; i++) {
+                        if (marker.getPosition().equals(libraryCoords[i])) {
+                            pos = i;
+                        }
+                    }
+                    libraries.setSelection(pos);
+                    return false;
+                }
+            });
         }
     }
 
     //coords of libraries in madison, displays markers
     private void displayLibraries() {
         for (int i = 0; i < libraryList.length; i++) {
-            mMap.addMarker(new MarkerOptions()
+            markerList[i] = mMap.addMarker(new MarkerOptions()
                     .position(libraryCoords[i])
                     .title(libraryList[i]));
         }
-    }
-
-    //change drawable vector to bitmap for marker icon
-    private BitmapDescriptor BitmapFromVector(Context context, int vectorId) {
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorId);
-        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_4444);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     // back button functionality
