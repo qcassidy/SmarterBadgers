@@ -27,8 +27,8 @@ public class DialogFive extends AppCompatDialogFragment {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
-            builder.setTitle("Finished 10 Assignment!")
-                    .setMessage("Date Obtained:\n " +  date + "\n\nCongratulations!!!")
+            builder.setTitle("Finished 10 Assignments!")
+                    .setMessage("Date Obtained:\n " +  date + "\n\nYou've unlocked cheesy pizza!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -37,7 +37,7 @@ public class DialogFive extends AppCompatDialogFragment {
                     });
         }else{
             builder.setTitle("Finished 10 Assignment!")
-                    .setMessage("Date Obtained: not yet obtained")
+                    .setMessage("Date Obtained: not yet obtained\n\nFinish 10 assignments to unlock cheesy pizza!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

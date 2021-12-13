@@ -3,19 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_create_assignment.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_edit_assignment.xml" value="0.3640625" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_main.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_map.xml" value="0.38333333333333336" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_planner.xml" value="0.3546875" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/assignment_list_item.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_assignment_dialog.xml" value="0.3932267168391345" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_blank.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_planner.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_view_assignment.xml" value="0.5541666666666667" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/map_list_item.xml" value="0.38333333333333336" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/todo_list_item.xml" value="0.3640625" />
-        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/menu/fragment_planner_action_bar.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_create_assignment.xml" value="0.3807291666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_edit_assignment.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_planner.xml" value="0.3807291666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/backup_todo_list_item.xml" value="0.36770833333333336" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_profile.xml" value="0.3807291666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_timer.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/todo_list_item.xml" value="0.3807291666666667" />
+        <entry key="..\:/Users/inter/AndroidStudioProjects/SmarterBadgers/app/src/main/res/xml/root_preferences.xml" value="0.5217391304347826" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_create_assignment.xml" value="0.2765625" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_main.xml" value="0.24375" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/activity_map.xml" value="0.24375" />
@@ -24,17 +19,13 @@
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_planner.xml" value="0.24375" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_profile.xml" value="0.2765625" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/layout/fragment_timer.xml" value="0.24375" />
+        <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/menu/fragment_planner_action_bar.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/kevin/AndroidStudioProjects/SmarterBadgers/app/src/main/res/menu/menu.xml" value="0.24375" />
-        <entry key="app/src/main/res/drawable/idk.xml" value="0.3807291666666667" />
         <entry key="app/src/main/res/layout/activity_create_assignment.xml" value="0.23143115942028986" />
-        <entry key="app/src/main/res/layout/activity_map.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_planner.xml" value="0.23143115942028986" />
         <entry key="app/src/main/res/layout/activity_timer.xml" value="0.335" />
         <entry key="app/src/main/res/layout/fragment_planner.xml" value="0.23143115942028986" />
         <entry key="app/src/main/res/layout/fragment_timer.xml" value="0.22135416666666666" />
-        <entry key="app/src/main/res/layout/map_list_item.xml" value="0.3645833333333333" />
-        <entry key="app/src/main/res/layout/text_style.xml" value="0.3645833333333333" />
-        <entry key="app/src/main/res/menu/fragment_planner_action_bar.xml" value="0.20416666666666666" />
         <entry key="app/src/main/res/menu/menu.xml" value="0.22135416666666666" />
       </map>
     </option>
