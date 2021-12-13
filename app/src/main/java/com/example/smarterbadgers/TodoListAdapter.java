@@ -569,7 +569,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         assignment.setCompleted(!assignment.getCompleted());
 
         // update number of assignments completed
-        SharedPreferences sharedPref = plannerFragment.getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = plannerFragment.getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);
         int numAssignmentsCompleted = sharedPref.getInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, 0);
         SharedPreferences.Editor editor = sharedPref.edit();
 

@@ -254,6 +254,12 @@ public class PlannerFragment extends Fragment {
                 alertDialogBuilder.setPositiveButton("Delete All Assignments", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        ArrayList<Integer> removedIds = dbHelper.getAssignmentNotificationIDs();
+                        for (Integer id: removedIds) {
+                            Log.d("ids", "removing " + id + " from notifications");
+                            deleteNotification(id);
+                        }
+
                         todoListAdapter.clearDatabase();
                         Toast toast = new Toast(getContext());
                         toast.setText("All assignments deleted");
@@ -344,7 +350,13 @@ public class PlannerFragment extends Fragment {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context,ASSIGNMENT_NOTIFICATION_CHANNEL_ID);
             builder.setSmallIcon(R.drawable.ic_baseline_assignment_24);
             builder.setContentTitle(name);
-            builder.setContentText("Your assignment is due in " + hoursBefore + " hours!");
+
+            if (hoursBefore == 1) {
+                builder.setContentText("Your assignment is due in " + hoursBefore + " hour!");
+            }
+            else {
+                builder.setContentText("Your assignment is due in " + hoursBefore + " hours!");
+            }
             builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
@@ -404,12 +416,13 @@ public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Lon
         calendar.set(Calendar.DAY_OF_MONTH, assignment.getDueDay());
         calendar.set(Calendar.HOUR_OF_DAY, assignment.getDueHour());
         calendar.set(Calendar.MINUTE, assignment.getDueMin());
+        calendar.set(Calendar.SECOND, 0);
         calendar.add(calendar.HOUR, -assignment.getNotifyHoursBefore());
         Log.d("alarm", "setting alarm for " + calendar.get(GregorianCalendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR) +" " + calendar.get(Calendar.HOUR_OF_DAY) +":" + calendar.get(Calendar.MINUTE));
 
         AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
         // subtract 500ms because the notifications seem to be sent at the very end of the minute
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() - 1000, alarmIntent);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
 
     }
 
@@ -453,7 +466,7 @@ public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Lon
             toast.show();
             todoListAdapter.assignmentDialogFragment.dialog.cancel();
 
-            deleteNotification(assignment);
+            deleteNotification(assignment.getId());
         }
     }
 
@@ -462,14 +475,14 @@ public class EditAssignmentToDatabase extends AsyncTask<Assignment, Integer, Lon
         databaseDelete.execute(assignment);
     }
 
-    public void deleteNotification(Assignment assignment) {
+    public void deleteNotification(int id) {
         Intent notificationIntent = new Intent(getContext(), AlarmBroadcastReceiver.class);
         notificationIntent.setAction(AlarmBroadcastReceiver.ACTION_ALARM_BROADCAST_RECEIVER);
-        notificationIntent.putExtra("name", assignment.getName());
-        notificationIntent.putExtra("hoursBefore", assignment.getNotifyHoursBefore());
-        notificationIntent.putExtra("id", assignment.getId());
+        //notificationIntent.putExtra("name", assignment.getName());
+        //notificationIntent.putExtra("hoursBefore", assignment.getNotifyHoursBefore());
+        //notificationIntent.putExtra("id", assignment.getId());
 
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(), assignment.getId(), notificationIntent, PendingIntent.FLAG_MUTABLE);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(), id, notificationIntent, PendingIntent.FLAG_MUTABLE);
 
         AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(alarmIntent);
