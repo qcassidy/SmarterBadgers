@@ -27,7 +27,7 @@ public class DialogThree extends AppCompatDialogFragment {
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
             builder.setTitle("Study 10 hours!")
-                    .setMessage("Date Obtained: " +  date + "\n\nCongratulations!!!")
+                    .setMessage("Date Obtained: " +  date + "\n\nYou've unlocked swiss cheese!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -36,7 +36,7 @@ public class DialogThree extends AppCompatDialogFragment {
                     });
         }else{
             builder.setTitle("Study 10 hours!")
-                    .setMessage("Date Obtained: not yet obtained")
+                    .setMessage("Date Obtained: not yet obtained\n\nStudy 10 hours to unlock swiss cheese!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

@@ -15,7 +15,7 @@
         android:layout_marginTop="68dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_grilledcheese" />
 
     <ImageView
         android:id="@+id/imageView11"
@@ -25,7 +25,7 @@
         android:layout_marginTop="148dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_food_cheese_very_stinky" />
 
     <ImageView
         android:id="@+id/imageView12"
@@ -35,7 +35,7 @@
         android:layout_marginTop="148dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_cheesypizza" />
 
     <ImageView
         android:id="@+id/imageView8"
@@ -45,7 +45,7 @@
         android:layout_marginTop="68dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_cheesesandwiches" />
 
     <ImageView
         android:id="@+id/imageView10"
@@ -55,7 +55,7 @@
         android:layout_marginTop="148dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_food_fancy_cheese" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -65,7 +65,7 @@
         android:layout_marginTop="68dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:srcCompat="@android:drawable/btn_star_big_on" />
+        app:srcCompat="@drawable/ic_swisscheese" />
 
     <TextView
         android:id="@+id/assignFinish"

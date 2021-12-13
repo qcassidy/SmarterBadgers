@@ -27,7 +27,7 @@ public class DialogTwo extends AppCompatDialogFragment {
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
             builder.setTitle("Study 2 hours!")
-                    .setMessage("Date Obtained: " +  date + "\n\nCongratulations!!!")
+                    .setMessage("Date Obtained: " +  date + "\n\nYou've unlocked grilled cheese!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -36,7 +36,7 @@ public class DialogTwo extends AppCompatDialogFragment {
                     });
         }else{
             builder.setTitle("Study 2 hours!")
-                    .setMessage("Date Obtained: not yet obtained")
+                    .setMessage("Date Obtained: not yet obtained\n\nStudy 2 hours to unlock grilled cheese!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

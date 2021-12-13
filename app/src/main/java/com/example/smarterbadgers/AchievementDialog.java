@@ -30,7 +30,7 @@ public class AchievementDialog extends AppCompatDialogFragment {
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
             builder.setTitle("Study 25 Minutes!")
-                    .setMessage("Date Obtained: " +  date + "\n\nCongratulations!!!")
+                    .setMessage("Date Obtained: " +  date + "\n\nYou've unlocked cheese sandwiches!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -39,7 +39,7 @@ public class AchievementDialog extends AppCompatDialogFragment {
                     });
         }else{
             builder.setTitle("Study 25 Minutes!")
-                    .setMessage("Date Obtained: not yet obtained")
+                    .setMessage("Date Obtained: not yet obtained\n\nStudy 25 minutes to unlock cheese sandwiches!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
