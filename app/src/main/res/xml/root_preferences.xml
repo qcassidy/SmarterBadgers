@@ -36,5 +36,5 @@
 
     </PreferenceCategory>
 
-<Preference android:widgetLayout="@layout/fragment_profile"/>
+\
 </PreferenceScreen>

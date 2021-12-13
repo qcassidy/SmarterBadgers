@@ -18,6 +18,7 @@ import org.w3c.dom.Text;
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     public static String usernameKey;
+    public static String userString = "Badger";
     TextView username;
 
     @Override
@@ -27,10 +28,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         usernameKey = "username";
 
         EditTextPreference enteredUser = findPreference("username");
-        String userString = enteredUser.getText().toString();
+        userString = enteredUser.getText().toString();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         sharedPreferences.edit().putString("name", userString).apply();
-        Log.i("tag", userString);
+        Log.i("this is the username", userString);
 
 
 //        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);

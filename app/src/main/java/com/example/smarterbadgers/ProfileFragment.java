@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.preference.EditTextPreference;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,12 +75,16 @@ public class ProfileFragment extends Fragment {
         String finishedAssign = sharedPreferences.getString("completed_assignment_preference_key", "0");
         String timeString = String.valueOf(recordedTime);
 
-        String editUser = sharedPreferences.getString("name", "");
+        String editUser = sharedPreferences.getString("name", "Badger");
+        Log.i("this is  on profile", editUser);
+
+//        EditTextPreference enteredUser = (EditTextPreference) findPreference("username");
+//        String userString = enteredUser.getText().toString();
 
         assignment.setText("Assignments Finished: "+ finishedAssign);
         timer.setText("Total Study Time: " + timeString + " minutes");
         //Log.i("number", "recordedTime " + recordedTime);
-        username.setText("Welcome " + editUser + "!");
+        username.setText("Hello " + SettingsFragment.userString + "!");
 
 
         achieveOne = (ImageView) view.findViewById(R.id.imageView8);

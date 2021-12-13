@@ -2,28 +2,47 @@ package com.example.smarterbadgers;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
-
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class AchievementDialog extends AppCompatDialogFragment {
     private ImageView testone;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("About this Cheese: It's Yummy")
-                .setMessage("Date Obtained: 9/13/21 \nTime Spent Studying: 45 min \nAssignments completed: CS407")
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+        SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);
+        int recordedTime = sharedPreferences.getInt("timestudied", 0);
 
-                    }
-                });
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        if(recordedTime == 25) {
+
+            Date currentTime = Calendar.getInstance().getTime();
+            builder.setTitle("Study 25 Minutes!")
+                    .setMessage("Date Obtained:\n " +  currentTime + "\n\nCongratulations!!!")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+        }else{
+            builder.setTitle("Study 25 Minutes!")
+                    .setMessage("Date Obtained: not yet obtained")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+        }
         return builder.create();
     }
 }
