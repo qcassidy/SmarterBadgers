@@ -8,8 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -38,6 +40,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         usernameKey = "username";
 
         EditTextPreference enteredUser = findPreference("username");
+
+        // save new username upon change
+        enteredUser.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                userString = newValue.toString();
+                Log.d("test", newValue.toString());
+                return true;
+            }
+        });
 
         try {
             userString = enteredUser.getText().toString();
@@ -68,5 +80,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 //    Preference test =
 
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // store username in shared preferences
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        sharedPreferences.edit().putString("username", userString).apply();
+    }
 
 }

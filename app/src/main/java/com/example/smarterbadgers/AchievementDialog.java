@@ -24,7 +24,7 @@ public class AchievementDialog extends AppCompatDialogFragment {
         int recordedTime = sharedPreferences.getInt("timestudied", 0);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if(recordedTime >= 1) {
+        if(recordedTime >= 25) {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
