@@ -1,5 +1,7 @@
 package com.example.smarterbadgers;
 
+import android.util.Log;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,7 +12,7 @@ public class Day {
     private int y;
     private ArrayList<Assignment> assignments;
     private Calendar calendar;
-    private String[] daysOfWeek = new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    private String[] daysOfWeek = new String[] {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private int dayIndex;
 
     public Day(int[] mdy) {

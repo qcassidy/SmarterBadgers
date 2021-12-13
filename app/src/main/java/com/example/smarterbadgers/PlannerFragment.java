@@ -254,16 +254,9 @@ public class PlannerFragment extends Fragment {
                 alertDialogBuilder.setPositiveButton("Delete All Assignments", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ArrayList<Integer> removedIds = dbHelper.getAssignmentNotificationIDs();
-                        for (Integer id: removedIds) {
-                            Log.d("ids", "removing " + id + " from notifications");
-                            deleteNotification(id);
-                        }
+                        ClearDatabaseAndRemoveNotifications clearDatabaseAndRemoveNotifications = new ClearDatabaseAndRemoveNotifications();
+                        clearDatabaseAndRemoveNotifications.execute((Assignment) null);
 
-                        todoListAdapter.clearDatabase();
-                        Toast toast = new Toast(getContext());
-                        toast.setText("All assignments deleted");
-                        toast.show();
                     }
                 });
 
@@ -271,42 +264,69 @@ public class PlannerFragment extends Fragment {
                 dbHelper.clearDatabase();
                 return true;
             case R.id.addAssignmentMenuItem:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker datePicker, int y, int m, int d) {
-                            dayPicked = d;
-                            monthPicked = m;
-                            yearPicked = y;
-
-                            timePickerDialog.show();
-                        }
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-                    datePickerDialog.show();
-                }
-
-
-                timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
-                        int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
-
-                        Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
-                        intent.putExtra("hour", "" + hour);
-                        intent.putExtra("minute", "" + minute);
-                        intent.putExtra("year", "" + selectedDate[0]);
-                        intent.putExtra("month", "" + selectedDate[1]);
-                        intent.putExtra("day", "" + selectedDate[2]);
-
-                        createAssignmentActivityResultLauncher.launch(intent);
-                    }
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+                createAssignment();
                 return true;
             default:
                 return false;
         }
 
+    }
+
+    protected void createAssignment() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+                    dayPicked = d;
+                    monthPicked = m;
+                    yearPicked = y;
+
+                    timePickerDialog.show();
+                }
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+            datePickerDialog.show();
+        }
+
+
+        timePickerDialog = new TimePickerDialog(view.getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                int[] selectedDate = new int[] {yearPicked, monthPicked, dayPicked};
+
+                Intent intent = new Intent(view.getContext(), CreateAssignmentActivity.class);
+                intent.putExtra("hour", "" + hour);
+                intent.putExtra("minute", "" + minute);
+                intent.putExtra("year", "" + selectedDate[0]);
+                intent.putExtra("month", "" + selectedDate[1]);
+                intent.putExtra("day", "" + selectedDate[2]);
+
+                createAssignmentActivityResultLauncher.launch(intent);
+            }
+        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+    }
+
+    // need this so assignments aren't deleted before I can get all the ids
+    public class ClearDatabaseAndRemoveNotifications extends AsyncTask<Assignment, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(Assignment... assignments) {
+            ArrayList<Integer> removedIds = dbHelper.getAssignmentNotificationIDs();
+            for (Integer id: removedIds) {
+                Log.d("ids", "removing " + id + " from notifications");
+                deleteNotification(id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            todoListAdapter.clearDatabase();
+            Toast toast = new Toast(getContext());
+            toast.setText("All assignments deleted");
+            toast.show();
+        }
     }
 
     public class SaveAssignmentToDatabase extends AsyncTask<Assignment, Integer, Long> {
