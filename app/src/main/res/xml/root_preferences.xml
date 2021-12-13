@@ -29,11 +29,8 @@
         android:icon="@drawable/ic_baseline_lock_24">
 
         <SwitchPreferenceCompat
-            app:key="sync"
+            app:key="permission"
             app:title="Permission 1" />
-
-
-
     </PreferenceCategory>
 
 \
