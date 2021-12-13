@@ -252,6 +252,13 @@ public class Assignment {
     }
 
     public void setNotifyHoursBefore(int hours) {
+        if (hours == -1) {
+            this.notify = false;
+        }
+        else {
+            this.notify = true;
+        }
+
         this.notifyHoursBefore = hours;
     }
 }

@@ -110,6 +110,10 @@ public class CreateAssignmentActivity extends AppCompatActivity {
                 return;
             }
         }
+        else {
+            notifyHoursBefore = -1;
+            Log.d("notification", "no notification " + notifyHoursBefore);
+        }
 
         Intent returnIntent = new Intent();
        returnIntent.putExtra("name", name);

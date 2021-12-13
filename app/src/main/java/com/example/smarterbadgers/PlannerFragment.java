@@ -119,7 +119,7 @@ public class PlannerFragment extends Fragment {
                             String month = data.getStringExtra("month");
                             String year = data.getStringExtra("year");
                             boolean notify = data.getBooleanExtra("notify", false);
-                            int notifyHoursBefore = data.getIntExtra("notifyHours", 0);
+                            int notifyHoursBefore = data.getIntExtra("notifyHours", -1);
 
                             Log.d("notify", "" + notify + " " + notifyHoursBefore);
 
@@ -149,7 +149,7 @@ public class PlannerFragment extends Fragment {
                             int month = data.getIntExtra("month", -1);
                             int year = data.getIntExtra("year", -1);
                             boolean notify = data.getBooleanExtra("notify", false);
-                            int notifyHoursBefore = data.getIntExtra("notifyHoursBefore", 0);
+                            int notifyHoursBefore = data.getIntExtra("notifyHoursBefore", -1);
 
                             currAssignment.setName(name);
                             currAssignment.setDescription(desc);
