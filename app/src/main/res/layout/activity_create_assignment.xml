@@ -14,7 +14,7 @@
         android:id="@+id/saveAssignmentButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         android:onClick="saveAssignmentButtonOnClick"
         android:text="save"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,22 +24,26 @@
 
     <EditText
         android:id="@+id/assignmentDescEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="344dp"
+        android:layout_height="155dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginRight="12dp"
         android:ems="10"
         android:hint="assignment description"
         android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/NotificationDateLinearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/assignmentNameEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/assignmentNameEditText"
+        app:layout_constraintVertical_bias="0.183" />
 
     <EditText
         android:id="@+id/assignmentNameEditText"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="assignment name"
         android:inputType="textMultiLine|textPersonName"
@@ -52,14 +56,12 @@
         android:id="@+id/NotificationDateLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="230dp"
-        android:layout_marginBottom="41dp"
+        android:layout_marginTop="216dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/saveAssignmentButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/assignmentNameEditText">
 
         <CheckBox
             android:id="@+id/CreateAssignmentNotificationCheckBox"

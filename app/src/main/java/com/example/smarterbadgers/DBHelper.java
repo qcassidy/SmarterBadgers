@@ -287,7 +287,6 @@ public class DBHelper {
     }
 
     public void saveAssignment(Assignment currAssignment) {
-        // TODO deal with apostrophes and other potential breaking characters
 
         DatabaseUtils.sqlEscapeString(currAssignment.getName());
         sqLiteDatabase.execSQL(String.format(Locale.getDefault(),"INSERT INTO assignments (name, dueDate, dueTime, description, dueYear, dueMonth, dueDay, dueHour, dueMin, dueDayOfYear, completed, hidden, notifyHoursBefore)" +

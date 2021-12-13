@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -311,7 +310,23 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         ArrayList<Assignment> assignments = currDay.getAssignments();
         NestedScrollView nestedScrollView = viewHolder.getNestedScrollView();
 
-        viewHolder.getTextView().setText(days.get(position).toString());
+        TextView dateTextView = viewHolder.getTextView();
+        dateTextView.setText(currDay.toString());
+        //dateTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        dateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                plannerFragment.createAssignment();
+            }
+        });
+        /*dateTextView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return onTextTouch(dateTextView, motionEvent);
+            }
+        });
+
+         */
         viewHolder.getNestedLinearLayout().removeAllViews();
 
         if (onRunOfEmptyDays) {
@@ -409,19 +424,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
                 @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
-                        assignmentNameTextView.setBackgroundColor(Color.LTGRAY);
-                        return false;
-                    } else {
-                        if (MotionEvent.ACTION_UP == motionEvent.getAction())  {
-                            assignmentNameTextView.setBackgroundColor(Color.WHITE);
-                        } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
-                            //textView.setBackgroundColor(Color.WHITE);
-                        } else if (MotionEvent.ACTION_CANCEL == motionEvent.getAction()) {
-                            assignmentNameTextView.setBackgroundColor(Color.WHITE);
-                        }
-                        return false;
-                    }
+                    return onTextTouch(assignmentNameTextView, motionEvent);
                 }
             });
 
@@ -452,7 +455,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         }
 
         LinearLayout dLinearLayout = viewHolder.getDividerLinearLayout();
-        if (currDay.getDayOfWeek() == 6) {
+        if (currDay.getDayOfWeek() == 1) {
             dLinearLayout.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             dLinearLayout.setVisibility(View.VISIBLE);
             TextView weekRangeText = dLinearLayout.findViewById(R.id.WeekDividerMiddleText);
@@ -584,5 +587,21 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         Log.d("completed assignments", "" + sharedPref.getInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, 0));
 
         dbHelper.updateAssignment(assignment);
+    }
+
+    private boolean onTextTouch(TextView assignmentNameTextView, MotionEvent motionEvent) {
+        if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
+            assignmentNameTextView.setBackgroundColor(Color.LTGRAY);
+        } else {
+            if (MotionEvent.ACTION_UP == motionEvent.getAction())  {
+                assignmentNameTextView.setBackgroundColor(Color.WHITE);
+            } else if (MotionEvent.ACTION_MOVE == motionEvent.getAction()) {
+                //textView.setBackgroundColor(Color.WHITE);
+            } else if (MotionEvent.ACTION_CANCEL == motionEvent.getAction()) {
+                assignmentNameTextView.setBackgroundColor(Color.WHITE);
+            }
+        }
+        return false;
+
     }
 }

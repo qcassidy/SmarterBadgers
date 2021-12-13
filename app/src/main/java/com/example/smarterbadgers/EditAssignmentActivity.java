@@ -95,6 +95,10 @@ public class EditAssignmentActivity extends AppCompatActivity {
         hoursNotifyBeforeText = findViewById(R.id.EditAssignmentHoursBeforeText);
 
         notifyCheckBox.setChecked(notify);
+        if (notifyHoursBefore == -1) {
+            notifyHoursBefore = 0;
+
+        }
         hoursNotifyBeforeText.setText(String.valueOf(notifyHoursBefore));
 
         // update variables and  after time change
