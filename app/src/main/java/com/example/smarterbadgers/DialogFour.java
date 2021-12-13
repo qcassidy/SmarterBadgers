@@ -22,7 +22,7 @@ public class DialogFour extends AppCompatDialogFragment {
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if(numAssign == 1) {
+        if(numAssign >= 1) {
 
             Date currentTime = Calendar.getInstance().getTime();
             builder.setTitle("Finished 1 Assignment!")
