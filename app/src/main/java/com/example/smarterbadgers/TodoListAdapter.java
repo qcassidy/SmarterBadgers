@@ -316,7 +316,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHo
         dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                plannerFragment.createAssignment();
+                plannerFragment.createAssignment(new int[] {currDay.getCalendar().get(Calendar.MONTH), currDay.getCalendar().get(Calendar.DAY_OF_MONTH), currDay.getCalendar().get(Calendar.YEAR)});
             }
         });
         /*dateTextView.setOnTouchListener(new View.OnTouchListener() {

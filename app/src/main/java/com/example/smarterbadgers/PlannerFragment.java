@@ -264,7 +264,7 @@ public class PlannerFragment extends Fragment {
                 dbHelper.clearDatabase();
                 return true;
             case R.id.addAssignmentMenuItem:
-                createAssignment();
+                createAssignment(null);
                 return true;
             default:
                 return false;
@@ -272,8 +272,22 @@ public class PlannerFragment extends Fragment {
 
     }
 
-    protected void createAssignment() {
+    protected void createAssignment(int[] mdy) {
+        int year;
+        int month;
+        int day;
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        if (mdy == null) {
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+        }
+        else {
+            year = mdy[2];
+            month = mdy[0];
+            day = mdy[1];
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), new DatePickerDialog.OnDateSetListener() {
                 @Override
@@ -284,7 +298,7 @@ public class PlannerFragment extends Fragment {
 
                     timePickerDialog.show();
                 }
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            }, year, month, day);
 
             datePickerDialog.show();
         }
