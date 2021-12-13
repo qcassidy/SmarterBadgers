@@ -27,7 +27,8 @@ public class DialogFour extends AppCompatDialogFragment {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
-            String date = sdf.format(c.getTime());            builder.setTitle("Finished 1 Assignment!")
+            String date = sdf.format(c.getTime());
+            builder.setTitle("Finished 1 Assignment!")
                     .setMessage("Date Obtained:\n " +  date + "\n\nYou've unlocked stinky cheese!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
