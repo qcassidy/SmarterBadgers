@@ -1,12 +1,18 @@
 package com.example.smarterbadgers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -42,6 +48,9 @@ public class TimerFragment extends Fragment {
     private long timeLeftBreakMilliseconds = 300000;
     private int breaksRemaining;
     private int secStudied = 0;
+    private boolean running = false;
+
+    private NotificationManagerCompat notificationManager;
 
 
 
@@ -67,6 +76,7 @@ public class TimerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         breaksRemaining = ((MainActivity)getActivity()).getBreaks();
+        notificationManager = NotificationManagerCompat.from(getActivity());
 
     }
 
@@ -134,6 +144,7 @@ public class TimerFragment extends Fragment {
                 String timeLeftString = String.format("%02d:%02d", min, sec);
                 timerTextView.setText(timeLeftString);
                 secStudied++;
+                running = true;
             }
 
             @Override
@@ -150,6 +161,7 @@ public class TimerFragment extends Fragment {
                 sharedint += (secStudied/60);
                 secStudied %= 60;
                 sharedPreferences.edit().putInt("timestudied",sharedint).apply();
+                running = false;
             }
         }.start();
     }
@@ -183,6 +195,7 @@ public class TimerFragment extends Fragment {
                         sharedint += (secStudied/60);
                         secStudied %= 60;
                         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
+                        running = false;
                     }
                 });
         AlertDialog alertDialog = builder.create();
@@ -209,6 +222,7 @@ public class TimerFragment extends Fragment {
                 int sec = (int) timeLeftBreakMilliseconds/1000%60;
                 String timeLeftBreakString = String.format("%02d:%02d", min, sec);
                 timerTextView.setText(timeLeftBreakString);
+                running = false;
             }
 
             @Override
@@ -218,6 +232,7 @@ public class TimerFragment extends Fragment {
                 stopButton.setVisibility(View.VISIBLE);
                 endBreakButton.setVisibility(View.INVISIBLE);
                 startTimer();
+                running = true;
             }
         }.start();
     }
@@ -231,6 +246,7 @@ public class TimerFragment extends Fragment {
         }
         stopButton.setVisibility(View.VISIBLE);
         endBreakButton.setVisibility(View.INVISIBLE);
+        running = true;
         startTimer();
     }
 
@@ -241,6 +257,24 @@ public class TimerFragment extends Fragment {
         sharedint += (secStudied/60);
         secStudied %= 60;
         sharedPreferences.edit().putInt("timestudied",sharedint).apply();
+
+        if (running == true) {
+            Intent activityIntent = new Intent(getActivity(), MainActivity.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(getActivity(), 0,
+                    activityIntent, 0);
+            Notification notification = new NotificationCompat.Builder(getActivity(),"timer_channel")
+                    .setContentTitle("You left while the timer was running!")
+                    .setContentText("Come back and study more!")
+                    .setSmallIcon(R.drawable.ic_timer)
+                    .setColor(Color.RED)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .build();
+            notificationManager.notify(1,notification);
+        }
         super.onStop();
     }
 }
