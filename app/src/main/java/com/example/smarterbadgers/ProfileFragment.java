@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
         assignment = (TextView) view.findViewById(R.id.assignFinish);
         SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);
         int recordedTime = sharedPreferences.getInt("timestudied", 0);
-        String finishedAssign = sharedPreferences.getString("completed_assignment_preference_key", "0");
+        int finishedAssign = sharedPreferences.getInt(Assignment.COMPLETED_ASSIGNMENT_PREFERENCE_KEY, 0);
         String timeString = String.valueOf(recordedTime);
 
         String editUser = sharedPreferences.getString("name", "Badger");
