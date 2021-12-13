@@ -24,7 +24,7 @@ public class DialogSix extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(numAssign >= 100) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());            builder.setTitle("Finished 100 Assignment!s")
                     .setMessage("Date Obtained:\n " +  date + "\n\nYou've unlocked fancy cheese!\n\nCongratulations!!!")

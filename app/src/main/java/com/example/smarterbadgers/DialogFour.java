@@ -25,7 +25,7 @@ public class DialogFour extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(numAssign >= 1) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());            builder.setTitle("Finished 1 Assignment!")
                     .setMessage("Date Obtained:\n " +  date + "\n\nYou've unlocked stinky cheese!\n\nCongratulations!!!")
