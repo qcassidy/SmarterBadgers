@@ -39,24 +39,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         sharedPreferences.edit().putString("username", userString).apply();
         Log.i("this is the username", userString);
 
-
-//        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);
-//        sharedPreferences.edit().putString("username", user).apply();
-
     }
 
-    //@Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//
-//
-//        // Inflate the layout for this fragment
-//        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-////        username = (TextView) view.findViewById(R.id.textView);
-////        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("com.example.smarterbadgers", Context.MODE_PRIVATE);
-////        String editUser = sharedPreferences.getString("username", "");
-////        username.setText("Welcome " + editUser + "!");
-//
-//        return view;
-//    }
+
 }
