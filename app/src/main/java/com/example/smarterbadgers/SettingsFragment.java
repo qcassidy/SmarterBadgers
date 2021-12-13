@@ -28,9 +28,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         usernameKey = "username";
 
         EditTextPreference enteredUser = findPreference("username");
-        userString = enteredUser.getText().toString();
+
+        try {
+            userString = enteredUser.getText().toString();
+        } catch (NullPointerException e) {
+            userString = "Badger";
+        }
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        sharedPreferences.edit().putString("name", userString).apply();
+        sharedPreferences.edit().putString("username", userString).apply();
         Log.i("this is the username", userString);
 
 
