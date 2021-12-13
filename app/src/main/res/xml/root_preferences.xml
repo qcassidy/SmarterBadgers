@@ -1,18 +1,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        app:icon="@drawable/ic_baseline_notifications_24"
-        app:title="Notification">
 
-
-        <SwitchPreferenceCompat
-            app:key="notification"
-            app:summaryOff="Notifications are off"
-            app:summaryOn="Notifications are on"
-            app:title="New Notification Reminder" />
-
-    </PreferenceCategory>
 
 
     <PreferenceCategory app:title="User Settings"
@@ -25,13 +14,7 @@
 
 
     </PreferenceCategory>
-    <PreferenceCategory app:title="Permissions"
-        android:icon="@drawable/ic_baseline_lock_24">
 
-        <SwitchPreferenceCompat
-            app:key="permission"
-            app:title="Permission 1" />
-    </PreferenceCategory>
 
 \
 </PreferenceScreen>
