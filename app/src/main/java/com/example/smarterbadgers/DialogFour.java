@@ -10,6 +10,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,9 +25,10 @@ public class DialogFour extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(numAssign >= 1) {
 
-            Date currentTime = Calendar.getInstance().getTime();
-            builder.setTitle("Finished 1 Assignment!")
-                    .setMessage("Date Obtained:\n " +  currentTime + "\n\nCongratulations!!!")
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Calendar c = Calendar.getInstance();
+            String date = sdf.format(c.getTime());            builder.setTitle("Finished 1 Assignment!")
+                    .setMessage("Date Obtained:\n " +  date + "\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

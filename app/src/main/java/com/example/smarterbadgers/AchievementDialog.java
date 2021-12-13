@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -22,11 +24,13 @@ public class AchievementDialog extends AppCompatDialogFragment {
         int recordedTime = sharedPreferences.getInt("timestudied", 0);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if(recordedTime == 25) {
+        if(recordedTime >= 1) {
 
-            Date currentTime = Calendar.getInstance().getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Calendar c = Calendar.getInstance();
+            String date = sdf.format(c.getTime());
             builder.setTitle("Study 25 Minutes!")
-                    .setMessage("Date Obtained:\n " +  currentTime + "\n\nCongratulations!!!")
+                    .setMessage("Date Obtained: " +  date + "\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
