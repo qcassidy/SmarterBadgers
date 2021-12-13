@@ -26,7 +26,8 @@ public class DialogSix extends AppCompatDialogFragment {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
-            String date = sdf.format(c.getTime());            builder.setTitle("Finished 100 Assignment!s")
+            String date = sdf.format(c.getTime());
+            builder.setTitle("Finished 100 Assignments!")
                     .setMessage("Date Obtained:\n " +  date + "\n\nYou've unlocked fancy cheese!\n\nCongratulations!!!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -35,7 +36,7 @@ public class DialogSix extends AppCompatDialogFragment {
                         }
                     });
         }else{
-            builder.setTitle("Finished 100 Assignment!")
+            builder.setTitle("Finished 100 Assignments!")
                     .setMessage("Date Obtained: not yet obtained\n\nFinish 100 assignments to unlock fancy cheese!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override

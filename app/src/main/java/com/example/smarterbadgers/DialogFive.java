@@ -36,7 +36,7 @@ public class DialogFive extends AppCompatDialogFragment {
                         }
                     });
         }else{
-            builder.setTitle("Finished 10 Assignment!")
+            builder.setTitle("Finished 10 Assignments!")
                     .setMessage("Date Obtained: not yet obtained\n\nFinish 10 assignments to unlock cheesy pizza!")
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
