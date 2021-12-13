@@ -25,12 +25,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static String usernameKey;
     public static String userString = "Badger";
     TextView username;
-    SQLiteDatabase sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
-    private DBHelper notificationHelper = new DBHelper(sqLiteDatabase);
+    SQLiteDatabase sqLiteDatabase;//= getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+    private DBHelper notificationHelper; // = new DBHelper(sqLiteDatabase);
 
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        sqLiteDatabase = getActivity().openOrCreateDatabase("assignments",Context.MODE_PRIVATE, null);
+        notificationHelper = new DBHelper(sqLiteDatabase);
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         usernameKey = "username";

@@ -24,7 +24,7 @@ public class DialogFive extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(numAssign >= 10) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
             builder.setTitle("Finished 10 Assignments!")

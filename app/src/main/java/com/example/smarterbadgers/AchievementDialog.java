@@ -26,7 +26,7 @@ public class AchievementDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(recordedTime >= 1) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             Calendar c = Calendar.getInstance();
             String date = sdf.format(c.getTime());
             builder.setTitle("Study 25 Minutes!")
